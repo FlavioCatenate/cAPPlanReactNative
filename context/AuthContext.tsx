@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
+import { loggedAccount } from "../services/authService";
 
 export interface User {
   activated: boolean;
@@ -24,6 +25,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void;
   logout: () => void;
   isLoggedIn: boolean;
+  isLoading: boolean;
 }
 
 //creation of the context whit default value null, the value will be provided by the AuthProvider component
@@ -32,14 +34,30 @@ const AuthContext = createContext<AuthContextType | null>(null);
 // This component will manage the authentication state and provide it to all its. children via the authcontext.
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Boolean value if the user is logged in or not
-  let isLoggedIn = user !== null;
+  // Recupera il token dal secure storage al mount del componente
+  useEffect(() => {
+    bootstrapAsync();
+  }, []);
+
+  const bootstrapAsync = async () => {
+    try {
+      const token = await SecureStore.getItemAsync("auth_token");
+      if (token) {
+        const userData = await loggedAccount();
+        setUser(userData);
+      }
+    } catch (e) {
+      console.error("Failed to restore token", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // logout function delete the current user and set it to null
-  const logout = () => {
-    SecureStore.deleteItemAsync("auth_token");
-    isLoggedIn = false;
+  const logout = async () => {
+    await SecureStore.deleteItemAsync("auth_token");
     setUser(null);
   };
 
@@ -49,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser,
     logout,
     isLoggedIn: user !== null,
+    isLoading,
   };
 
   // return the provider component with the valie and all the children that will have access to the context

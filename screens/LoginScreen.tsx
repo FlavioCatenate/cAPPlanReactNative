@@ -24,6 +24,14 @@ export default function LoginScreen({ navigation }: any) {
   const [password, setPassword] = useState("");
 
   async function handleLogin() {
+    if (!username.trim()) {
+      Alert.alert("Error", "Username cannot be empty");
+      return;
+    }
+    if (!password) {
+      Alert.alert("Error", "Password cannot be empty");
+      return;
+    }
     try {
       // login and store token in secure storage
       const response = await login(username, password);
@@ -52,105 +60,100 @@ export default function LoginScreen({ navigation }: any) {
       start={{ x: 0.5, y: 0.5 }}
       end={{ x: 0.5, y: 1 }}
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAwareScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        keyboardShouldPersistTaps="handled"
+        enableOnAndroid={true}
+        extraScrollHeight={20}
       >
-        <KeyboardAwareScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          enableOnAndroid={true}
-          extraScrollHeight={20}
-        >
-          <View style={styles.root}>
-            {/* Logo and title */}
-            <View style={{ marginBottom: 70 }}>
-              <Image
-                style={{
-                  width: 200,
-                  height: 200,
-                  alignSelf: "center",
-                  marginTop: 50,
-                }}
-                source={require("../assets/images/Catenate-Logo.png")}
-                resizeMode="contain"
-              />
-              <Text style={[Typography.title, { textAlign: "center" }]}>
-                cAPPlan
-              </Text>
-            </View>
+        <View style={styles.root}>
+          {/* Logo and title */}
+          <View style={{ marginBottom: 70 }}>
+            <Image
+              style={{
+                width: 200,
+                height: 200,
+                alignSelf: "center",
+                marginTop: 50,
+              }}
+              source={require("../assets/images/Catenate-Logo.png")}
+              resizeMode="contain"
+            />
+            <Text style={[Typography.title, { textAlign: "center" }]}>
+              cAPPlan
+            </Text>
+          </View>
 
-            {/* Form */}
-            <View>
-              <View
-                style={{
-                  padding: 20,
-                  alignItems: "center",
-                }}
-              >
-                <Text style={[Typography.subtitle, { marginBottom: 10 }]}>
-                  Login
-                </Text>
-                <Text style={Typography.body}>
-                  Enter your userame and password
-                </Text>
-              </View>
-
-              {/* Form inputs */}
-              <TextInput
-                placeholder="username"
-                style={styles.formInput}
-                value={username}
-                onChangeText={setUsername}
-              />
-              <TextInput
-                placeholder="password"
-                style={styles.formInput}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry={true}
-              />
-              <Pressable
-                onPress={handleLogin}
-                style={[
-                  styles.formInput,
-                  {
-                    backgroundColor: Colors.secondaryGray,
-                    alignItems: "center",
-                  },
-                ]}
-              >
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  Continue
-                </Text>
-              </Pressable>
-            </View>
-
-            {/* Pryvacy */}
+          {/* Form */}
+          <View>
             <View
               style={{
-                marginTop: 20,
+                padding: 20,
                 alignItems: "center",
               }}
             >
-              <Text style={{ color: Colors.secondaryGray }}>
-                By clicking continue, you agree to our {"\n"}{" "}
-                <Text
-                  style={{ color: "#454545", textDecorationLine: "underline" }}
-                >
-                  Terms of Service{" "}
-                </Text>
-                and{" "}
-                <Text
-                  style={{ color: "#454545", textDecorationLine: "underline" }}
-                >
-                  Privacy Policy
-                </Text>
+              <Text style={[Typography.subtitle, { marginBottom: 10 }]}>
+                Login
+              </Text>
+              <Text style={Typography.body}>
+                Enter your userame and password
               </Text>
             </View>
+
+            {/* Form inputs */}
+            <TextInput
+              placeholder="username"
+              style={styles.formInput}
+              value={username}
+              onChangeText={setUsername}
+            />
+            <TextInput
+              placeholder="password"
+              style={styles.formInput}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+            />
+            <Pressable
+              onPress={handleLogin}
+              style={[
+                styles.formInput,
+                {
+                  backgroundColor: Colors.secondaryGray,
+                  alignItems: "center",
+                },
+              ]}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>
+                Continue
+              </Text>
+            </Pressable>
           </View>
-        </KeyboardAwareScrollView>
-      </KeyboardAvoidingView>
+
+          {/* Pryvacy */}
+          <View
+            style={{
+              marginTop: 20,
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: Colors.secondaryGray }}>
+              By clicking continue, you agree to our {"\n"}{" "}
+              <Text
+                style={{ color: "#454545", textDecorationLine: "underline" }}
+              >
+                Terms of Service{" "}
+              </Text>
+              and{" "}
+              <Text
+                style={{ color: "#454545", textDecorationLine: "underline" }}
+              >
+                Privacy Policy
+              </Text>
+            </Text>
+          </View>
+        </View>
+      </KeyboardAwareScrollView>
     </LinearGradient>
   );
 }

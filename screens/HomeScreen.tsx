@@ -6,8 +6,8 @@ import HomeButton from "../components/HomeButton";
 export default function HomeScreen({ navigation }: any) {
   const { user, logout } = useAuth();
 
-  function handleLogout() {
-    logout();
+  async function handleLogout() {
+    await logout();
     navigation.replace("Login");
   }
 
