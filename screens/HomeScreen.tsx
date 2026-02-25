@@ -8,7 +8,6 @@ export default function HomeScreen({ navigation }: any) {
 
   async function handleLogout() {
     await logout();
-    navigation.replace("Login");
   }
 
   return (

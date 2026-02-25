@@ -40,9 +40,6 @@ export default function LoginScreen({ navigation }: any) {
       // logged account set into the global auth context
       const loggedAccountRes = await loggedAccount();
       setUser(loggedAccountRes);
-
-      // navigate to home screen
-      navigation.replace("Home");
     } catch (error) {
       console.error("Login failed:", error);
       Alert.alert(

@@ -48,29 +48,7 @@ export default function App() {
     <AuthProvider>
       <SafeAreaProvider>
         <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Login"
-              component={LoginScreen}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Home"
-              component={HomeScreen}
-              options={{
-                headerShown: true,
-                headerTitle: "Capacity Planning",
-              }}
-            />
-            <Stack.Screen
-              name="EditProfile"
-              component={EditProfileScreen}
-              options={{
-                headerShown: true,
-                headerTitle: "Edit Profile",
-              }}
-            />
-          </Stack.Navigator>
+          <RootNavigator />
         </NavigationContainer>
       </SafeAreaProvider>
     </AuthProvider>
