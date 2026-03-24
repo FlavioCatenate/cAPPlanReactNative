@@ -2,6 +2,7 @@ import { Text, View, Image, StyleSheet } from "react-native";
 import { useAuth } from "../context/AuthContext";
 import Typography from "../constants/typography";
 import HomeButton from "../components/HomeButton";
+import Colors from "../constants/colors";
 
 export default function HomeScreen({ navigation }: any) {
   const { user, logout } = useAuth();
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
   profileImage: {
     width: 80,
     height: 80,
-    backgroundColor: "#F49B19",
+    backgroundColor: Colors.primary,
     borderRadius: 50,
     marginTop: 40,
   },

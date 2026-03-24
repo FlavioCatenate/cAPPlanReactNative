@@ -31,12 +31,22 @@ export default function App() {
             <Stack.Screen
               name="Home"
               component={HomeScreen}
-              options={{ headerShown: true, headerTitle: "Capacity Planning" }}
+              options={{
+                headerShown: true,
+                headerTitle: "Capacity Planning",
+                headerTitleAlign: "center",
+                headerTitleStyle: { fontSize: 20, fontWeight: "bold" }
+              }}
             />
             <Stack.Screen
               name="EditProfile"
               component={EditProfileScreen}
-              options={{ headerShown: true, headerTitle: "Edit Profile" }}
+              options={{
+                headerShown: true,
+                headerTitle: "Edit Profile",
+                headerTitleAlign: "center",
+                headerTitleStyle: { fontSize: 20, fontWeight: "bold" }
+              }}
             />
           </>
         )}

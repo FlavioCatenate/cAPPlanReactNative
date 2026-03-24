@@ -65,13 +65,14 @@ export default function LoginScreen({ navigation }: any) {
       >
         <View style={styles.root}>
           {/* Logo and title */}
-          <View style={{ marginBottom: 70 }}>
+          <View style={{ marginBottom: 40 }}>
             <Image
               style={{
                 width: 200,
                 height: 200,
                 alignSelf: "center",
-                marginTop: 50,
+                marginTop: 30,
+                marginBottom: 10,
               }}
               source={require("../assets/images/Catenate-Logo.png")}
               resizeMode="contain"
@@ -93,7 +94,7 @@ export default function LoginScreen({ navigation }: any) {
                 Login
               </Text>
               <Text style={Typography.body}>
-                Enter your userame and password
+                Enter your username and password
               </Text>
             </View>
 
@@ -127,7 +128,7 @@ export default function LoginScreen({ navigation }: any) {
             </Pressable>
           </View>
 
-          {/* Pryvacy */}
+          {/* Privacy */}
           <View
             style={{
               marginTop: 20,
@@ -158,7 +159,9 @@ export default function LoginScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
+    width: "80%",
+    alignSelf: "center",
+    },
   text: {
     color: Colors.primary,
     fontSize: 20,

@@ -7,7 +7,8 @@ export async function login(username: string, password: string) {
       password,
     });
     return res.data;
-  } catch (e) {
+  } catch (e: any) {
+    console.error("Login error:", e);
     throw new Error("Login failed");
   }
 }
