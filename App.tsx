@@ -5,6 +5,7 @@ import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
 import SplashScreen from "./screens/SplashScreen";
+import AllocationPlanningScreen from "./screens/AllocationPlanningScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./context/AuthContext";
 import { useAuth } from "./context/AuthContext";
@@ -53,6 +54,16 @@ function DrawerContent({ navigation }: any) {
           <Text style={styles.drawerItemText}>Edit Profile</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity
+          style={styles.drawerItem}
+          onPress={() => {
+            navigation.navigate("AllocationPlanning");
+            navigation.closeDrawer();
+          }}
+        >
+          <Text style={styles.drawerItemText}>Allocation Planning</Text>
+        </TouchableOpacity>
+
         <View style={styles.drawerDivider} />
 
         <TouchableOpacity style={styles.drawerItemLogout} onPress={handleLogout}>
@@ -94,6 +105,13 @@ function AppNavigator() {
         component={EditProfileScreen}
         options={{
           headerTitle: "Edit Profile",
+        }}
+      />
+      <Drawer.Screen
+        name="AllocationPlanning"
+        component={AllocationPlanningScreen}
+        options={{
+          headerTitle: "Allocation Planning",
         }}
       />
     </Drawer.Navigator>

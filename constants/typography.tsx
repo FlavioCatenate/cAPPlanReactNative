@@ -3,14 +3,15 @@ import Colors from "./colors";
 interface TypographyStyle {
   fontSize: number;
   fontWeight: 700 | 600 | 400;
+  borderRadius?: number;
   color: string;
 }
 
 const Typography = {
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: 700,
-    color: Colors.textColor,
+    color: Colors.mainTextColor,
   } as TypographyStyle,
   subtitle: {
     fontSize: 18,
@@ -22,6 +23,7 @@ const Typography = {
     fontWeight: 400,
     color: Colors.textColor,
   } as TypographyStyle,
+  borderRadius: 14,
 };
 
 export default Typography;
