@@ -17,9 +17,4 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-export async function getEmployeeProjects() {
-  const res = await api.get("/api/employee-projects?eagerload=true&sort=id,asc");
-  return res.data;
-}
-
 export default api;

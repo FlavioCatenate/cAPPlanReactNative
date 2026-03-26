@@ -8,9 +8,11 @@ import SplashScreen from "./screens/SplashScreen";
 import AllocationPlanningScreen from "./screens/AllocationPlanningScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./context/AuthContext";
+import { Provider } from "react-redux";
 import { useAuth } from "./context/AuthContext";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "./constants/colors";
+import { store } from './store';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -146,6 +148,7 @@ export default function App() {
   }
 
   return (
+    <Provider store={store}>
     <AuthProvider>
       <SafeAreaProvider>
         <NavigationContainer>
@@ -153,6 +156,7 @@ export default function App() {
         </NavigationContainer>
       </SafeAreaProvider>
     </AuthProvider>
+    </Provider>
   );
 }
 

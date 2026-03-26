@@ -4,22 +4,24 @@ import {
   Text,
   Image,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   Alert,
 } from "react-native";
-import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
-import Colors from "../constants/colors";
-import { login, loggedAccount } from "../services/authService";
-import Typography from "../constants/typography";
 import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "../context/AuthContext";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import Colors from "../constants/colors";
+import Typography from "../constants/typography";
+import { useAuth } from "../context/AuthContext";          // ← resta, migrazione graduale
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { loginThunk, selectAuthStatus, selectAuthError } from "../store/slices/authSlice";
 
 export default function LoginScreen({ navigation }: any) {
-  const { setUser } = useAuth();
+  const { setUser } = useAuth();                           // ← resta temporaneamente
+  const dispatch = useAppDispatch();
+  const authStatus = useAppSelector(selectAuthStatus);
+  const authError = useAppSelector(selectAuthError);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -32,20 +34,14 @@ export default function LoginScreen({ navigation }: any) {
       Alert.alert("Error", "Password cannot be empty");
       return;
     }
-    try {
-      // login and store token in secure storage
-      const response = await login(username, password);
-      await SecureStore.setItemAsync("auth_token", response.id_token);
 
-      // logged account set into the global auth context
-      const loggedAccountRes = await loggedAccount();
-      setUser(loggedAccountRes);
-    } catch (error) {
-      console.error("Login failed:", error);
-      Alert.alert(
-        "Login Failed",
-        "Please check your credentials and try again.",
-      );
+    const result = await dispatch(loginThunk({ username, password }));
+
+    if (loginThunk.fulfilled.match(result)) {
+      setUser(result.payload);                             // ← aggiorna ancora il Context
+      navigation.replace("Home");
+    } else {
+      Alert.alert("Login Failed", authError ?? "Controlla le credenziali e riprova.");
     }
   }
 
@@ -64,90 +60,60 @@ export default function LoginScreen({ navigation }: any) {
         extraScrollHeight={20}
       >
         <View style={styles.root}>
-          {/* Logo and title */}
           <View style={{ marginBottom: 40 }}>
             <Image
-              style={{
-                width: 200,
-                height: 200,
-                alignSelf: "center",
-                marginTop: 30,
-                marginBottom: 10,
-              }}
+              style={{ width: 200, height: 200, alignSelf: "center", marginTop: 30, marginBottom: 10 }}
               source={require("../assets/images/Catenate-Logo.png")}
               resizeMode="contain"
             />
-            <Text style={[Typography.title, { textAlign: "center" }]}>
-              cAPPlan
-            </Text>
+            <Text style={[Typography.title, { textAlign: "center" }]}>cAPPlan</Text>
           </View>
 
-          {/* Form */}
           <View>
-            <View
-              style={{
-                padding: 20,
-                alignItems: "center",
-              }}
-            >
-              <Text style={[Typography.subtitle, { marginBottom: 10 }]}>
-                Login
-              </Text>
-              <Text style={Typography.body}>
-                Enter your username and password
-              </Text>
+            <View style={{ padding: 20, alignItems: "center" }}>
+              <Text style={[Typography.subtitle, { marginBottom: 10 }]}>Login</Text>
+              <Text style={Typography.body}>Enter your username and password</Text>
             </View>
 
-            {/* Form inputs */}
             <TextInput
               placeholder="username"
               style={styles.formInput}
               value={username}
               onChangeText={setUsername}
+              autoCapitalize="none"                        
             />
             <TextInput
               placeholder="password"
               style={styles.formInput}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry={true}
+              secureTextEntry
             />
             <Pressable
               onPress={handleLogin}
+              disabled={authStatus === 'loading'}          // ← disabilita durante fetch
               style={[
                 styles.formInput,
                 {
-                  backgroundColor: Colors.secondaryGray,
+                  backgroundColor: authStatus === 'loading'
+                    ? Colors.secondaryGray + '88'
+                    : Colors.secondaryGray,
                   alignItems: "center",
                 },
               ]}
             >
               <Text style={{ color: "white", fontWeight: "bold" }}>
-                Continue
+                {authStatus === 'loading' ? 'Loading...' : 'Continue'}
               </Text>
             </Pressable>
           </View>
 
-          {/* Privacy */}
-          <View
-            style={{
-              marginTop: 20,
-              alignItems: "center",
-            }}
-          >
+          <View style={{ marginTop: 20, alignItems: "center" }}>
             <Text style={{ color: Colors.secondaryGray }}>
-              By clicking continue, you agree to our {"\n"}{" "}
-              <Text
-                style={{ color: "#454545", textDecorationLine: "underline" }}
-              >
-                Terms of Service{" "}
-              </Text>
+              By clicking continue, you agree to our{"\n"}{" "}
+              <Text style={{ color: "#454545", textDecorationLine: "underline" }}>Terms of Service </Text>
               and{" "}
-              <Text
-                style={{ color: "#454545", textDecorationLine: "underline" }}
-              >
-                Privacy Policy
-              </Text>
+              <Text style={{ color: "#454545", textDecorationLine: "underline" }}>Privacy Policy</Text>
             </Text>
           </View>
         </View>
@@ -161,10 +127,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "80%",
     alignSelf: "center",
-    },
-  text: {
-    color: Colors.primary,
-    fontSize: 20,
   },
   formInput: {
     borderWidth: 1,

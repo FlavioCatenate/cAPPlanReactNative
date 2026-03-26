@@ -1,133 +1,116 @@
-import { View, Text, StyleSheet } from "react-native";
-import Colors from "../constants/colors";
-import Card from "../components/Card";
-import { FlatList } from "react-native-gesture-handler";
-import { getEmployeeProjects } from "../services/api";
-import { useEffect, useState } from "react";
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  fetchAllocations,
+  selectAllocations,
+  selectAllocationsStatus,
+  selectAllocationsError,
+  type Allocation,
+} from '../store/slices/allocationSlice';
+import { getAllocationStatus, getStatusColor } from '../utils/allocationColors';
+import AllocationCard from '../components/AllocationCard';
+import Colors from '../constants/colors';
 
-interface Employee {
-  id: number;
-  name: string;
-  surname: string;
-  emailAddress: string;
-}
+export default function AllocationPlanningScreen({ navigation }: any) {
+  const dispatch = useAppDispatch();
+  const items = useAppSelector(selectAllocations);
+  const status = useAppSelector(selectAllocationsStatus);
+  const error = useAppSelector(selectAllocationsError);
 
-interface Project {
-  id: number;
-  name: string;
-  description: string;
-  type: string;
-  fromDate: string;
-  toDate: string;
-  isActive: boolean;
-  fixedPrice?: any;
-  projectIdKpi?: any;
-}
-
-interface Allocation {
-  id: number;
-  fromDate: string;
-  toDate: string;
-  percentage: number;
-  employee: Employee;
-  project: Project;
-}
-
-
-export default function AllocationPlanningScreen() {
-
-const [items, setItems] = useState<Allocation[]>([]);
-const [loading, setLoading] = useState(true);
-const [error, setError] = useState<string | null>(null);
-
-  // Funzione per determinare il colore basato sullo stato del progetto
-  const getProjectColor = (allocation: Allocation) => {
-    const { project, toDate } = allocation;
-
-    // Se il progetto non è attivo (finito) -> rosso
-    if (!project.isActive) {
-      return Colors.errorColor;
-    }
-
-    // Se il progetto è attivo, controlla le date
-    const endDate = new Date(toDate);
-    const now = new Date();
-    const daysUntilEnd = Math.ceil((endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-
-    // Se la data di fine è già passata -> rosso (progetto scaduto)
-    if (daysUntilEnd < 0) {
-      return Colors.errorColor;
-    }
-
-    // Se mancano 30 giorni o meno -> giallo
-    if (daysUntilEnd <= 30) {
-      return Colors.warningColor;
-    }
-
-    // Altrimenti -> verde (progetto attivo e non in scadenza)
-    return Colors.successColor;
-  };
+  const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await getEmployeeProjects();
-        console.log("Progetti:", data);
-        setItems(data);
-      } catch (err) {
-        console.error("Errore fetch:", err);
-        setError(err instanceof Error ? err.message : 'Errore sconosciuto');
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
+    dispatch(fetchAllocations());
+  }, [dispatch]);
 
-  const cardList = () => {
-    if (loading) {
-      return <Text>Loading...</Text>;
-    }
-
-    if (error) {
-      return <Text>Error: {error}</Text>;
-    }
-
-    return (
-      <FlatList
-        style={{ flex: 1, width: '100%' }}
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          const {
-            id,
-            fromDate,
-            toDate,
-            percentage,
-            employee: { name, surname },
-            project: { name: projectName, description }
-          } = item;
-
-          const cardColor = getProjectColor(item);
-
-          return (
-            <Card
-              title={`${name} ${surname}`}
-              description={`${projectName} - ${percentage}%`}
-              projectName={projectName}
-              dateStart={fromDate}
-              dateEnd={toDate}
-              color={cardColor}
-            />
-          );
-        }}
-      />
-    );
+  const handlePressOptions = (allocation: Allocation) => {
+    setSelectedAllocation(allocation);
+    setModalVisible(true);
   };
+
+  const handlePressDetail = (allocation: Allocation) => {
+    navigation.navigate('AllocationDetail', { allocation });
+  };
+
+  if (status === 'loading') {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
+  if (status === 'failed') {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>Errore: {error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {cardList()}
+
+      <FlatList
+        data={items}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => {
+          const allocationStatus = getAllocationStatus(item);
+          const cardColor = getStatusColor(allocationStatus);
+          return (
+            <AllocationCard
+              title={`${item.employee.name} ${item.employee.surname}`}
+              projectName={item.project.name}
+              dateStart={item.fromDate}
+              dateEnd={item.toDate}
+              percentage={item.percentage}
+              color={cardColor}
+              onPressDetail={() => handlePressDetail(item)}
+              onPressOptions={() => handlePressOptions(item)}
+            />
+          );
+        }}
+        contentContainerStyle={{ paddingBottom: 100 }}
+      />
+
+      {/* FAB + */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => navigation.navigate('AddAllocation')}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </Pressable>
+
+      {/* Modal edit/delete — da espandere */}
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+          <View style={styles.modalBox}>
+            <Text style={styles.modalTitle}>
+              {selectedAllocation?.employee.name} {selectedAllocation?.employee.surname}
+            </Text>
+            <Pressable style={styles.modalOption} onPress={() => {
+              setModalVisible(false);
+              navigation.navigate('EditAllocation', { allocation: selectedAllocation });
+            }}>
+              <Text style={styles.modalOptionText}>Modifica</Text>
+            </Pressable>
+            <Pressable style={[styles.modalOption, styles.modalDelete]} onPress={() => {
+              setModalVisible(false);
+              // TODO: dispatch(deleteAllocation(selectedAllocation!.id))
+            }}>
+              <Text style={[styles.modalOptionText, styles.modalDeleteText]}>Elimina</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
     </View>
   );
 }
@@ -138,5 +121,70 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundColor,
     paddingHorizontal: 20,
     paddingTop: 20,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundColor,
+  },
+  errorText: {
+    color: Colors.errorColor,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 28,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  fabText: {
+    fontSize: 28,
+    color: '#fff',
+    lineHeight: 32,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalBox: {
+    backgroundColor: Colors.surfaceColor,
+    borderRadius: 14,
+    padding: 20,
+    width: '75%',
+    gap: 12,
+  },
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.mainTextColor,
+    marginBottom: 4,
+  },
+  modalOption: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.backgroundColor,
+  },
+  modalOptionText: {
+    fontSize: 15,
+    color: Colors.mainTextColor,
+  },
+  modalDelete: {
+    backgroundColor: Colors.errorColor + '18',
+  },
+  modalDeleteText: {
+    color: Colors.errorColor,
   },
 });
