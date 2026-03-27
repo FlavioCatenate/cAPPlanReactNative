@@ -94,7 +94,7 @@ function AllocationStackNavigator() {
         name="AddAllocation"
         component={AddAllocationScreen}
         options={{
-          headerShown: true,
+          headerShown: false,
           headerTitle: "Nuova Allocation",
           headerBackTitle: "Indietro",
         }}
