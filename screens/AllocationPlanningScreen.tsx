@@ -1,38 +1,106 @@
 import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   fetchAllocations,
-  selectAllocations,
+  selectAllocationsWithUi,
   selectAllocationsStatus,
   selectAllocationsError,
+  deleteAllocationThunk as deleteAllocation,
   type Allocation,
+  type AllocationListItem,
 } from '../store/slices/allocationSlice';
-import { getAllocationStatus, getStatusColor } from '../utils/allocationColors';
 import AllocationCard from '../components/AllocationCard';
 import Colors from '../constants/colors';
 
+const ITEM_HEIGHT = 124;
+
+interface AllocationListProps {
+  items: AllocationListItem[];
+  onPressDetail: (allocation: Allocation) => void;
+  onPressOptions: (allocation: Allocation) => void;
+}
+
+const AllocationList = memo(function AllocationList({
+  items,
+  onPressDetail,
+  onPressOptions,
+}: AllocationListProps) {
+  const renderItem = useCallback(({ item }: { item: AllocationListItem }) => {
+    return (
+      <AllocationCard
+        title={item.employeeFullName}
+        projectName={item.project.name}
+        dateStart={item.fromDate}
+        dateEnd={item.toDate}
+        percentage={item.percentage}
+        salesRate={item.salesRate}
+        isFixedPrice={item.isFixedPrice}
+        color={item.cardColor}
+        onPressDetail={() => onPressDetail(item)}
+        onPressOptions={() => onPressOptions(item)}
+      />
+    );
+  }, [onPressDetail, onPressOptions]);
+
+  const keyExtractor = useCallback((item: AllocationListItem) => item.id.toString(), []);
+
+  const getItemLayout = useCallback((_: ArrayLike<AllocationListItem> | null | undefined, index: number) => {
+    return {
+      length: ITEM_HEIGHT,
+      offset: ITEM_HEIGHT * index,
+      index,
+    };
+  }, []);
+
+  return (
+    <FlatList
+      data={items}
+      keyExtractor={keyExtractor}
+      renderItem={renderItem}
+      contentContainerStyle={styles.listContent}
+      initialNumToRender={10}
+      maxToRenderPerBatch={10}
+      windowSize={7}
+      updateCellsBatchingPeriod={50}
+      removeClippedSubviews
+      getItemLayout={getItemLayout}
+    />
+  );
+});
+
 export default function AllocationPlanningScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
-  const items = useAppSelector(selectAllocations);
+  const items = useAppSelector(selectAllocationsWithUi);
   const status = useAppSelector(selectAllocationsStatus);
   const error = useAppSelector(selectAllocationsError);
 
   const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const [optionsModalVisible, setOptionsModalVisible] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllocations());
   }, [dispatch]);
 
-  const handlePressOptions = (allocation: Allocation) => {
+  const handlePressOptions = useCallback((allocation: Allocation) => {
     setSelectedAllocation(allocation);
-    setModalVisible(true);
-  };
+    setOptionsModalVisible(true);
+  }, []);
 
-  const handlePressDetail = (allocation: Allocation) => {
-    navigation.navigate('AllocationDetail', { allocation });
-  };
+  const handlePressDetail = useCallback((allocation: Allocation) => {
+    navigation.navigate('AllocationDetail', { allocationId: allocation.id });
+  }, [navigation]);
+
+  const handlePressAddAllocation = useCallback(() => {
+    const currentRouteNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+
+    if (currentRouteNames.includes('AddAllocation')) {
+      navigation.navigate('AddAllocation');
+      return;
+    }
+
+    navigation.navigate('AllocationStack', { screen: 'AddAllocation' });
+  }, [navigation]);
 
   if (status === 'loading') {
     return (
@@ -53,57 +121,41 @@ export default function AllocationPlanningScreen({ navigation }: any) {
   return (
     <View style={styles.container}>
 
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => {
-          const allocationStatus = getAllocationStatus(item);
-          const cardColor = getStatusColor(allocationStatus);
-          return (
-            <AllocationCard
-              title={`${item.employee.name} ${item.employee.surname}`}
-              projectName={item.project.name}
-              dateStart={item.fromDate}
-              dateEnd={item.toDate}
-              percentage={item.percentage}
-              color={cardColor}
-              onPressDetail={() => handlePressDetail(item)}
-              onPressOptions={() => handlePressOptions(item)}
-            />
-          );
-        }}
-        contentContainerStyle={{ paddingBottom: 100 }}
+      <AllocationList
+        items={items}
+        onPressDetail={handlePressDetail}
+        onPressOptions={handlePressOptions}
       />
 
       {/* FAB + */}
       <Pressable
         style={styles.fab}
-        onPress={() => navigation.navigate('AddAllocation')}
+        onPress={handlePressAddAllocation}
       >
         <Text style={styles.fabText}>+</Text>
       </Pressable>
 
       {/* Modal edit/delete — da espandere */}
       <Modal
-        visible={modalVisible}
+        visible={optionsModalVisible}
         transparent
         animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => setOptionsModalVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setModalVisible(false)}>
+        <Pressable style={styles.modalOverlay} onPress={() => setOptionsModalVisible(false)}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>
               {selectedAllocation?.employee.name} {selectedAllocation?.employee.surname}
             </Text>
             <Pressable style={styles.modalOption} onPress={() => {
-              setModalVisible(false);
+              setOptionsModalVisible(false);
               navigation.navigate('EditAllocation', { allocation: selectedAllocation });
             }}>
               <Text style={styles.modalOptionText}>Modifica</Text>
             </Pressable>
             <Pressable style={[styles.modalOption, styles.modalDelete]} onPress={() => {
-              setModalVisible(false);
-              // TODO: dispatch(deleteAllocation(selectedAllocation!.id))
+              setOptionsModalVisible(false);
+              dispatch(deleteAllocation(selectedAllocation!.id))
             }}>
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>Elimina</Text>
             </Pressable>
@@ -122,6 +174,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 20,
   },
+  listContent: {
+    paddingBottom: 100,
+  },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -138,7 +193,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.backgroundColor,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -149,7 +204,7 @@ const styles = StyleSheet.create({
   },
   fabText: {
     fontSize: 28,
-    color: '#fff',
+    color: '#000000',
     lineHeight: 32,
   },
   modalOverlay: {

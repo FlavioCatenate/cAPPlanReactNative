@@ -1,10 +1,11 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import {
   getAllocations,
   createAllocation,
   updateAllocation,
   deleteAllocation,
 } from '../../services/allocationService';
+import { getAllocationStatus, getStatusColor } from '../../utils/allocationColors';
 import type { RootState } from '../index';
 
 export interface Employee {
@@ -32,6 +33,13 @@ export interface Allocation {
   percentage: number;
   employee: Employee;
   project: Project;
+  salesRate?: number;
+  isFixedPrice?: boolean;
+}
+
+export interface AllocationListItem extends Allocation {
+  employeeFullName: string;
+  cardColor: string;
 }
 
 interface AllocationState {
@@ -136,3 +144,18 @@ export default allocationSlice.reducer;
 export const selectAllocations = (state: RootState) => state.allocations.items;
 export const selectAllocationsStatus = (state: RootState) => state.allocations.status;
 export const selectAllocationsError = (state: RootState) => state.allocations.error;
+
+export const selectAllocationsWithUi = createSelector(
+  [selectAllocations],
+  (items): AllocationListItem[] => {
+    return items.map((item) => {
+      const status = getAllocationStatus(item);
+
+      return {
+        ...item,
+        employeeFullName: `${item.employee.name} ${item.employee.surname}`,
+        cardColor: getStatusColor(status),
+      };
+    });
+  }
+);

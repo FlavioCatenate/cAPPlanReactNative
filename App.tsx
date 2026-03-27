@@ -6,15 +6,18 @@ import HomeScreen from "./screens/HomeScreen";
 import EditProfileScreen from "./screens/EditProfileScreen";
 import SplashScreen from "./screens/SplashScreen";
 import AllocationPlanningScreen from "./screens/AllocationPlanningScreen";
+import AllocationDetailScreen from "./screens/AllocationDetailScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider } from "./context/AuthContext";
 import { Provider } from "react-redux";
 import { useAuth } from "./context/AuthContext";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "./constants/colors";
-import { store } from './store';
+import { store } from "./store";
+import AddAllocationScreen from "./screens/addAllocationScreen";
 
 const Stack = createNativeStackNavigator();
+const AllocationStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function DrawerContent({ navigation }: any) {
@@ -59,7 +62,7 @@ function DrawerContent({ navigation }: any) {
         <TouchableOpacity
           style={styles.drawerItem}
           onPress={() => {
-            navigation.navigate("AllocationPlanning");
+            navigation.navigate("AllocationStack");
             navigation.closeDrawer();
           }}
         >
@@ -68,11 +71,42 @@ function DrawerContent({ navigation }: any) {
 
         <View style={styles.drawerDivider} />
 
-        <TouchableOpacity style={styles.drawerItemLogout} onPress={handleLogout}>
+        <TouchableOpacity
+          style={styles.drawerItemLogout}
+          onPress={handleLogout}
+        >
           <Text style={styles.drawerItemLogoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
     </View>
+  );
+}
+
+function AllocationStackNavigator() {
+  return (
+    <AllocationStack.Navigator>
+      <AllocationStack.Screen
+        name="AllocationPlanning"
+        component={AllocationPlanningScreen}
+        options={{ headerShown: false }}
+      />
+      <AllocationStack.Screen
+        name="AddAllocation"
+        component={AddAllocationScreen}
+        options={{
+          headerShown: true,
+          headerTitle: "Nuova Allocation",
+          headerBackTitle: "Indietro",
+        }}
+      />
+      <AllocationStack.Screen
+        name="AllocationDetail"
+        component={AllocationDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </AllocationStack.Navigator>
   );
 }
 
@@ -110,10 +144,11 @@ function AppNavigator() {
         }}
       />
       <Drawer.Screen
-        name="AllocationPlanning"
-        component={AllocationPlanningScreen}
+        name="AllocationStack" 
+        component={AllocationStackNavigator} 
         options={{
           headerTitle: "Allocation Planning",
+          drawerLabel: "Allocation Planning", 
         }}
       />
     </Drawer.Navigator>
@@ -149,13 +184,13 @@ export default function App() {
 
   return (
     <Provider store={store}>
-    <AuthProvider>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </AuthProvider>
+      <AuthProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </AuthProvider>
     </Provider>
   );
 }
