@@ -4,12 +4,12 @@ import {
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchEmployees, selectEmployees, selectEmployeesStatus } from '../store/slices/employeeSlice';
-import { fetchProjects, selectProjects, selectProjectsStatus } from '../store/slices/projectSlice';
-import { createAllocationThunk, fetchAllocations } from '../store/slices/allocationSlice';
-import Colors from '../constants/colors';
-import Typography from '../constants/typography';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { fetchEmployees, selectEmployees, selectEmployeesStatus } from '../../store/slices/employeeSlice';
+import { fetchProjects, selectProjects, selectProjectsStatus } from '../../store/slices/projectSlice';
+import { createAllocationThunk, fetchAllocations } from '../../store/slices/allocationSlice';
+import Colors from '../../constants/colors';
+import Typography from '../../constants/typography';
 
 export default function AddAllocationScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
@@ -28,11 +28,20 @@ export default function AddAllocationScreen({ navigation }: any) {
   const [toDate, setToDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const navigateBackToPlanning = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
+    navigation.navigate('AllocationPlanning');
+  };
+
   useEffect(() => {
     // Carica solo se la lista è vuota — evita refetch inutili
     if (employees.length === 0) dispatch(fetchEmployees());
     if (projects.length === 0) dispatch(fetchProjects());
-  }, [dispatch]);
+  }, [dispatch, employees.length, projects.length]);
 
   const isLoading = employeesStatus === 'loading' || projectsStatus === 'loading';
 
@@ -56,6 +65,8 @@ export default function AddAllocationScreen({ navigation }: any) {
       employee: { id: selectedEmployeeId } as any,
       project: { id: selectedProjectId } as any,
       percentage: pct,
+      salesRate: salesRate ? parseFloat(salesRate) : undefined,
+      isFixedPrice,
       fromDate,
       toDate,
     }));
@@ -64,7 +75,7 @@ export default function AddAllocationScreen({ navigation }: any) {
 
     if (createAllocationThunk.fulfilled.match(result)) {
       await dispatch(fetchAllocations());
-      navigation.goBack();
+      navigateBackToPlanning();
     } else {
       Alert.alert('Errore', 'Creazione fallita. Riprova.');
     }
@@ -134,10 +145,10 @@ export default function AddAllocationScreen({ navigation }: any) {
         />
         <Text style={styles.label}>Fixed Price</Text>
         <Pressable
-            style={[styles.submitButton, isFixedPrice && styles.submitDisabled]}
+            style={[styles.fixedPriceButtonNo, isFixedPrice && styles.fixedPriceButtonYes]}
             onPress={() => setIsFixedPrice(!isFixedPrice)}
         >
-          <Text style={styles.submitText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
+          <Text style={styles.fixedPriceText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
         </Pressable>
 
 
@@ -158,8 +169,8 @@ export default function AddAllocationScreen({ navigation }: any) {
         placeholder="es. 2025-12-31"
         keyboardType="numeric"
       />
-
-      <Pressable
+      <View>
+          <Pressable
         style={[styles.submitButton, submitting && styles.submitDisabled]}
         onPress={handleSubmit}
         disabled={submitting}
@@ -168,6 +179,21 @@ export default function AddAllocationScreen({ navigation }: any) {
           {submitting ? 'Salvataggio...' : 'Crea Allocation'}
         </Text>
       </Pressable>
+      <Pressable
+        onPress={navigateBackToPlanning}
+      >
+        <Text
+          style={{
+            color: Colors.mainTextColor,
+            textAlign: "center",
+            paddingVertical: 18,
+            marginBottom: 20,
+          }}
+        >
+          Annulla
+        </Text>
+      </Pressable>
+      </View>
     </ScrollView>
   );
 }
@@ -196,23 +222,38 @@ const styles = StyleSheet.create({
   },
   pickerWrapper: {
     borderWidth: 1,
-    borderColor: Colors.secondaryGray,
+    borderColor: Colors.backgroundColor,
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: Colors.surfaceColor,
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.secondaryGray,
+    borderColor: Colors.backgroundColor,
     borderRadius: 8,
     padding: 12,
     backgroundColor: Colors.surfaceColor,
     color: Colors.mainTextColor,
     fontSize: 15,
   },
+  fixedPriceButtonNo: {
+    marginTop: 12,
+    backgroundColor: Colors.errorColor,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  fixedPriceButtonYes: {
+    backgroundColor: Colors.successColor,
+  },
+  fixedPriceText: {
+    color: Colors.surfaceColor,
+    fontWeight: '600',
+    fontSize: 16,
+  },
   submitButton: {
     marginTop: 22,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.secondaryGray,
     padding: 16,
     borderRadius: 10,
     alignItems: 'center',

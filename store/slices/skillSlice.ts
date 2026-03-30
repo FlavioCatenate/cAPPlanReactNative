@@ -1,81 +1,53 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { getAllocations } from '../../services/allocationService';
+import { getSkills, type SkillOption } from '../../services/skillService';
 import type { RootState } from '..';
 
-export interface Employee {
-  id: number;
-  name: string;
-  surname: string;
-  emailAddress: string;
-}
-
-export interface Project {
-  id: number;
-  name: string;
-  type: string;
-  fromDate: string;
-  toDate: string;
-  isActive: boolean;
-  fixedPrice?: any;
-  projectIdKpi?: any;
-}
-
-export interface Allocation {
-  id: number;
-  fromDate: string;
-  toDate: string;
-  percentage: number;
-  employee: Employee;
-  project: Project;
-}
-
-interface AllocationState {
-  items: Allocation[];
+interface SkillState {
+  items: SkillOption[];
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
 }
 
-const initialState: AllocationState = {
+const initialState: SkillState = {
   items: [],
   status: 'idle',
   error: null,
 };
 
-export const fetchAllocations = createAsyncThunk(
-  'allocations/fetchAll',
+export const fetchSkills = createAsyncThunk(
+  'skills/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      return await getAllocations();
+      return await getSkills();
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Errore sconosciuto');
+      return rejectWithValue(err instanceof Error ? err.message : 'Errore');
     }
   }
 );
 
-const allocationSlice = createSlice({
-  name: 'allocations',
+const skillSlice = createSlice({
+  name: 'skills',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchAllocations.pending, (state) => {
+      .addCase(fetchSkills.pending, (state) => {
         state.status = 'loading';
         state.error = null;
       })
-      .addCase(fetchAllocations.fulfilled, (state, action) => {
+      .addCase(fetchSkills.fulfilled, (state, action) => {
         state.status = 'idle';
         state.items = action.payload;
       })
-      .addCase(fetchAllocations.rejected, (state, action) => {
+      .addCase(fetchSkills.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       });
   },
 });
 
-export default allocationSlice.reducer;
+export default skillSlice.reducer;
 
-// Selectors
-export const selectAllocations = (state: RootState) => state.allocations.items;
-export const selectAllocationsStatus = (state: RootState) => state.allocations.status;
-export const selectAllocationsError = (state: RootState) => state.allocations.error;
+export const selectSkills = (state: RootState) => state.skills.items;
+export const selectSkillsStatus = (state: RootState) => state.skills.status;
+export const selectSkillsError = (state: RootState) => state.skills.error;

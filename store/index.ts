@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import allocationReducer from './slices/allocationSlice';
 import employeeReducer from './slices/employeeSlice';
 import projectReducer from './slices/projectSlice';
+import skillReducer from './slices/skillSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     allocations: allocationReducer,
     employees: employeeReducer,
     projects: projectReducer,
+    skills: skillReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

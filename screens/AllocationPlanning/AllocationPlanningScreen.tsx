@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
 import { memo, useCallback, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchAllocations,
   selectAllocationsWithUi,
@@ -9,9 +9,9 @@ import {
   deleteAllocationThunk as deleteAllocation,
   type Allocation,
   type AllocationListItem,
-} from '../store/slices/allocationSlice';
-import AllocationCard from '../components/AllocationCard';
-import Colors from '../constants/colors';
+} from '../../store/slices/allocationSlice';
+import AllocationCard from '../../components/AllocationCard';
+import Colors from '../../constants/colors';
 
 const ItemSeparator = memo(function ItemSeparator() {
   return <View style={styles.itemSeparator} />;
@@ -32,7 +32,7 @@ const AllocationList = memo(function AllocationList({
     return (
       <AllocationCard
         title={item.employeeFullName}
-        projectName={item.project.name}
+        projectName={item.projectName}
         dateStart={item.fromDate}
         dateEnd={item.toDate}
         percentage={item.percentage}
@@ -141,17 +141,21 @@ export default function AllocationPlanningScreen({ navigation }: any) {
         <Pressable style={styles.modalOverlay} onPress={() => setOptionsModalVisible(false)}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>
-              {selectedAllocation?.employee.name} {selectedAllocation?.employee.surname}
+              {selectedAllocation?.employee?.name} {selectedAllocation?.employee?.surname}
             </Text>
             <Pressable style={styles.modalOption} onPress={() => {
               setOptionsModalVisible(false);
-              navigation.navigate('EditAllocation', { allocation: selectedAllocation });
+              Alert.alert('Non disponibile', 'La schermata di modifica non e ancora configurata.');
             }}>
               <Text style={styles.modalOptionText}>Modifica</Text>
             </Pressable>
             <Pressable style={[styles.modalOption, styles.modalDelete]} onPress={() => {
               setOptionsModalVisible(false);
-              dispatch(deleteAllocation(selectedAllocation!.id))
+              if (!selectedAllocation) {
+                return;
+              }
+
+              dispatch(deleteAllocation(selectedAllocation.id));
             }}>
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>Elimina</Text>
             </Pressable>

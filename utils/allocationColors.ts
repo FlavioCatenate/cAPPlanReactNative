@@ -1,9 +1,9 @@
 import Colors from '../constants/colors';
-import type { Allocation } from '../store/slices/skillSlice';
+import type { Allocation } from '../store/slices/allocationSlice';
 export type AllocationStatus = 'completed' | 'expiring' | 'active';
 
 export function getAllocationStatus(allocation: Allocation): AllocationStatus {
-  if (!allocation.project.isActive) return 'completed';
+  if (!allocation.project?.isActive) return 'completed';
 
   const daysUntilEnd = Math.ceil(
     (new Date(allocation.toDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)

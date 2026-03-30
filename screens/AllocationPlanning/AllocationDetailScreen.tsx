@@ -1,12 +1,12 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useMemo } from "react";
-import { useAppSelector } from "../store/hooks";
+import { useAppSelector } from "../../store/hooks";
 import {
   selectAllocations,
   type Allocation,
-} from "../store/slices/allocationSlice";
-import { getAllocationStatus, getStatusColor } from "../utils/allocationColors";
-import Colors from "../constants/colors";
+} from "../../store/slices/allocationSlice";
+import { getAllocationStatus, getStatusColor } from "../../utils/allocationColors";
+import Colors from "../../constants/colors";
 
 export default function AllocationDetailScreen({ route, navigation }: any) {
   const allocationId: number | undefined = route?.params?.allocationId;
@@ -32,7 +32,7 @@ export default function AllocationDetailScreen({ route, navigation }: any) {
       <View style={styles.card}>
         <View style={[styles.upperCard, { backgroundColor: headerColor }]}>
           <Text style={styles.title} numberOfLines={1}>
-            {allocation.employee.name} {allocation.employee.surname}
+            {allocation.employee?.name} {allocation.employee?.surname}
           </Text>
         </View>
 

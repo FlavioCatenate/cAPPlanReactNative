@@ -10,18 +10,18 @@ import type { RootState } from '../index';
 
 export interface Employee {
   id: number;
-  name: string;
-  surname: string;
-  emailAddress: string;
+  name?: string;
+  surname?: string;
+  emailAddress?: string;
 }
 
 export interface Project {
   id: number;
-  name: string;
-  type: string;
-  fromDate: string;
-  toDate: string;
-  isActive: boolean;
+  name?: string;
+  type?: string;
+  fromDate?: string;
+  toDate?: string;
+  isActive?: boolean;
   fixedPrice?: any;
   projectIdKpi?: any;
 }
@@ -40,6 +40,7 @@ export interface Allocation {
 export interface AllocationListItem extends Allocation {
   employeeFullName: string;
   cardColor: string;
+  projectName: string;
 }
 
 interface AllocationState {
@@ -54,9 +55,11 @@ const initialState: AllocationState = {
   error: null,
 };
 
-// --- Thunks ---
+function hasHydratedRelations(allocation: Allocation) {
+  return Boolean(allocation.employee && allocation.project);
+}
 
-export const fetchAllocations = createAsyncThunk(
+export const fetchAllocations = createAsyncThunk<Allocation[], void, { rejectValue: string }>(
   'allocations/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
@@ -67,9 +70,13 @@ export const fetchAllocations = createAsyncThunk(
   }
 );
 
-export const createAllocationThunk = createAsyncThunk(
+export const createAllocationThunk = createAsyncThunk<
+  Allocation,
+  Omit<Allocation, 'id'>,
+  { rejectValue: string }
+>(
   'allocations/create',
-  async (data: Omit<Allocation, 'id'>, { rejectWithValue }) => {
+  async (data, { rejectWithValue }) => {
     try {
       return await createAllocation(data);
     } catch (err) {
@@ -78,9 +85,13 @@ export const createAllocationThunk = createAsyncThunk(
   }
 );
 
-export const updateAllocationThunk = createAsyncThunk(
+export const updateAllocationThunk = createAsyncThunk<
+  Allocation,
+  { id: number; data: Partial<Allocation> },
+  { rejectValue: string }
+>(
   'allocations/update',
-  async ({ id, data }: { id: number; data: Partial<Allocation> }, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
       return await updateAllocation(id, data);
     } catch (err) {
@@ -89,9 +100,9 @@ export const updateAllocationThunk = createAsyncThunk(
   }
 );
 
-export const deleteAllocationThunk = createAsyncThunk(
+export const deleteAllocationThunk = createAsyncThunk<number, number, { rejectValue: string }>(
   'allocations/delete',
-  async (id: number, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       await deleteAllocation(id);
       return id;
@@ -101,15 +112,12 @@ export const deleteAllocationThunk = createAsyncThunk(
   }
 );
 
-// --- Slice ---
-
 const allocationSlice = createSlice({
   name: 'allocations',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // fetch
       .addCase(fetchAllocations.pending, (state) => {
         state.status = 'loading';
         state.error = null;
@@ -120,27 +128,28 @@ const allocationSlice = createSlice({
       })
       .addCase(fetchAllocations.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload as string;
+        state.error = action.payload ?? 'Errore sconosciuto';
       })
-      // create
       .addCase(createAllocationThunk.fulfilled, (state, action) => {
-        state.items.push(action.payload);
+        if (hasHydratedRelations(action.payload)) {
+          state.items.push(action.payload);
+        }
       })
-      // update
       .addCase(updateAllocationThunk.fulfilled, (state, action) => {
-        const index = state.items.findIndex(item => item.id === action.payload.id);
-        if (index !== -1) state.items[index] = action.payload;
+        const index = state.items.findIndex((item) => item.id === action.payload.id);
+
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
       })
-      // delete
       .addCase(deleteAllocationThunk.fulfilled, (state, action) => {
-        state.items = state.items.filter(item => item.id !== action.payload);
+        state.items = state.items.filter((item) => item.id !== action.payload);
       });
   },
 });
 
 export default allocationSlice.reducer;
 
-// --- Selectors ---
 export const selectAllocations = (state: RootState) => state.allocations.items;
 export const selectAllocationsStatus = (state: RootState) => state.allocations.status;
 export const selectAllocationsError = (state: RootState) => state.allocations.error;
@@ -150,11 +159,16 @@ export const selectAllocationsWithUi = createSelector(
   (items): AllocationListItem[] => {
     return items.map((item) => {
       const status = getAllocationStatus(item);
+      const employeeFullName = [item.employee?.name, item.employee?.surname]
+        .filter(Boolean)
+        .join(' ')
+        .trim();
 
       return {
         ...item,
-        employeeFullName: `${item.employee.name} ${item.employee.surname}`,
+        employeeFullName: employeeFullName || `Employee #${item.employee?.id ?? item.id}`,
         cardColor: getStatusColor(status),
+        projectName: item.project?.name || `Project #${item.project?.id ?? item.id}`,
       };
     });
   }

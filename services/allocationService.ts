@@ -1,5 +1,5 @@
 import api from './api';
-import type { Allocation } from '../store/slices/skillSlice';
+import type { Allocation } from '../store/slices/allocationSlice';
 
 export async function getAllocations(): Promise<Allocation[]> {
   const res = await api.get('/api/employee-projects?eagerload=true&sort=id,asc');
