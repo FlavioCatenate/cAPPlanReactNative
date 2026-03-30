@@ -14,8 +14,17 @@ export const loginThunk = createAsyncThunk(
       await SecureStore.setItemAsync('auth_token', response.id_token);
       const user = await loggedAccount();
       return user;
-    } catch (err) {
-      return rejectWithValue('Credenziali non valide');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        if (err.message === 'INVALID_CREDENTIALS') {
+          return rejectWithValue('Credenziali non valide');
+        }
+        if (err.message === 'LOGIN_TIMEOUT' || err.message === 'LOGIN_NETWORK') {
+          return rejectWithValue('Backend non raggiungibile. Controlla URL/API e rete.');
+        }
+      }
+
+      return rejectWithValue('Errore durante il login');
     }
   }
 );

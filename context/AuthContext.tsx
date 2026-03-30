@@ -48,7 +48,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const userData = await loggedAccount();
         setUser(userData);
       }
-    } catch (e) {
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message === "ACCOUNT_UNAUTHORIZED") {
+        await SecureStore.deleteItemAsync("auth_token");
+        setUser(null);
+      }
       console.error("Failed to restore token", e);
     } finally {
       setIsLoading(false);

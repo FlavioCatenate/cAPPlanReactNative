@@ -39,7 +39,6 @@ export default function LoginScreen({ navigation }: any) {
 
     if (loginThunk.fulfilled.match(result)) {
       setUser(result.payload);                             // ← aggiorna ancora il Context
-      navigation.replace("Home");
     } else {
       Alert.alert("Login Failed", authError ?? "Controlla le credenziali e riprova.");
     }

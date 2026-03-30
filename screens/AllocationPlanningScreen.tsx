@@ -13,7 +13,9 @@ import {
 import AllocationCard from '../components/AllocationCard';
 import Colors from '../constants/colors';
 
-const ITEM_HEIGHT = 124;
+const ItemSeparator = memo(function ItemSeparator() {
+  return <View style={styles.itemSeparator} />;
+});
 
 interface AllocationListProps {
   items: AllocationListItem[];
@@ -45,26 +47,20 @@ const AllocationList = memo(function AllocationList({
 
   const keyExtractor = useCallback((item: AllocationListItem) => item.id.toString(), []);
 
-  const getItemLayout = useCallback((_: ArrayLike<AllocationListItem> | null | undefined, index: number) => {
-    return {
-      length: ITEM_HEIGHT,
-      offset: ITEM_HEIGHT * index,
-      index,
-    };
-  }, []);
-
   return (
     <FlatList
       data={items}
       keyExtractor={keyExtractor}
       renderItem={renderItem}
+      ItemSeparatorComponent={ItemSeparator}
       contentContainerStyle={styles.listContent}
-      initialNumToRender={10}
-      maxToRenderPerBatch={10}
-      windowSize={7}
-      updateCellsBatchingPeriod={50}
-      removeClippedSubviews
-      getItemLayout={getItemLayout}
+      initialNumToRender={6}
+      maxToRenderPerBatch={6}
+      windowSize={5}
+      updateCellsBatchingPeriod={75}
+      removeClippedSubviews={true}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
     />
   );
 });
@@ -176,6 +172,9 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 100,
+  },
+  itemSeparator: {
+    height: 20,
   },
   centered: {
     flex: 1,

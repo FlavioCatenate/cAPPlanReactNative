@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     overflow: "hidden",
-    marginBottom: 20,
     width: "90%",
     alignItems: "center",
     alignSelf: "center",
