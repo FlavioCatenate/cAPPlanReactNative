@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
+import axios from 'axios';
 import {
   getAllocations,
   createAllocation,
@@ -87,7 +88,7 @@ export const createAllocationThunk = createAsyncThunk<
 
 export const updateAllocationThunk = createAsyncThunk<
   Allocation,
-  { id: number; data: Partial<Allocation> },
+  { id: number; data: Partial<Allocation> & { id?: number } },
   { rejectValue: string }
 >(
   'allocations/update',
@@ -95,6 +96,18 @@ export const updateAllocationThunk = createAsyncThunk<
     try {
       return await updateAllocation(id, data);
     } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const backendMessage =
+          err.response?.data?.detail ||
+          err.response?.data?.message ||
+          err.response?.data?.title ||
+          err.message;
+
+        console.error('Error updating allocation:', backendMessage);
+        return rejectWithValue(String(backendMessage));
+      }
+
+      console.error('Error updating allocation:', err instanceof Error ? err.message : err);
       return rejectWithValue(err instanceof Error ? err.message : 'Errore');
     }
   }

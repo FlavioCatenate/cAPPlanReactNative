@@ -2,22 +2,50 @@ import {
   View, Text, StyleSheet, TextInput,
   Pressable, ScrollView, ActivityIndicator, Alert
 } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { fetchEmployees, selectEmployees, selectEmployeesStatus } from '../../store/slices/employeeSlice';
 import { fetchProjects, selectProjects, selectProjectsStatus } from '../../store/slices/projectSlice';
-import { createAllocationThunk, fetchAllocations } from '../../store/slices/allocationSlice';
+import { fetchAllocations, selectAllocations, updateAllocationThunk } from '../../store/slices/allocationSlice';
 import Colors from '../../constants/colors';
 import Typography from '../../constants/typography';
 
-export default function AddAllocationScreen({ navigation }: any) {
+export default function EditAllocationScreen({ route, navigation }: any) {
   const dispatch = useAppDispatch();
 
+  const allocationId: number | undefined = route?.params?.allocationId;
+
+  const allocations = useAppSelector(selectAllocations);
   const employees = useAppSelector(selectEmployees);
   const projects = useAppSelector(selectProjects);
   const employeesStatus = useAppSelector(selectEmployeesStatus);
   const projectsStatus = useAppSelector(selectProjectsStatus);
+
+  const allocation = useMemo(
+    () => allocations.find((a) => a.id === allocationId),
+    [allocations, allocationId]
+  );
+
+  // Safety-net: se l'employee/project dell'allocation non è nella lista (es. paginazione),
+  // lo aggiungiamo manualmente così il picker mostra sempre il valore corrente.
+  const pickerEmployees = useMemo(() => {
+    const emp = allocation?.employee;
+    if (!emp?.id || employees.some((e) => e.id === Number(emp.id))) return employees;
+    return [
+      { id: Number(emp.id), name: emp.name ?? '', surname: emp.surname ?? '' },
+      ...employees,
+    ];
+  }, [employees, allocation?.employee]);
+
+  const pickerProjects = useMemo(() => {
+    const proj = allocation?.project;
+    if (!proj?.id || projects.some((p) => p.id === Number(proj.id))) return projects;
+    return [
+      { id: Number(proj.id), name: proj.name ?? '', type: '', isActive: true },
+      ...projects,
+    ];
+  }, [projects, allocation?.project]);
 
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
@@ -28,24 +56,38 @@ export default function AddAllocationScreen({ navigation }: any) {
   const [toDate, setToDate] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const navigateBackToPlanning = () => {
+  const navigateBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
       return;
     }
-
     navigation.navigate('AllocationPlanning');
   };
 
   useEffect(() => {
-    // Carica solo se la lista è vuota — evita refetch inutili
     if (employees.length === 0) dispatch(fetchEmployees());
     if (projects.length === 0) dispatch(fetchProjects());
   }, [dispatch, employees.length, projects.length]);
 
+  // Pre-fill form once allocation and lists are available
+  useEffect(() => {
+    if (!allocation) return;
+    setSelectedEmployeeId(allocation.employee?.id != null ? Number(allocation.employee.id) : null);
+    setSelectedProjectId(allocation.project?.id != null ? Number(allocation.project.id) : null);
+    setPercentage(String(allocation.percentage));
+    setIsFixedPrice(allocation.isFixedPrice ?? false);
+    setSalesRate(allocation.salesRate != null ? String(allocation.salesRate) : '');
+    setFromDate(allocation.fromDate ?? '');
+    setToDate(allocation.toDate ?? '');
+  }, [allocation]);
+
   const isLoading = employeesStatus === 'loading' || projectsStatus === 'loading';
 
   const handleSubmit = async () => {
+    if (!allocationId) {
+      Alert.alert('Errore', 'Allocation non trovata.');
+      return;
+    }
     if (!selectedEmployeeId || !selectedProjectId) {
       Alert.alert('Errore', 'Seleziona un employee e un progetto.');
       return;
@@ -61,23 +103,31 @@ export default function AddAllocationScreen({ navigation }: any) {
     }
 
     setSubmitting(true);
-    const result = await dispatch(createAllocationThunk({
-      employee: { id: selectedEmployeeId } as any,
-      project: { id: selectedProjectId } as any,
-      percentage: pct,
-      salesRate: salesRate ? parseFloat(salesRate) : undefined,
-      isFixedPrice,
-      fromDate,
-      toDate,
+    const result = await dispatch(updateAllocationThunk({
+      id: allocationId,
+      data: {
+        id: allocationId,
+        employee: { id: selectedEmployeeId } as any,
+        project: { id: selectedProjectId } as any,
+        percentage: pct,
+        salesRate: salesRate ? parseFloat(salesRate) : undefined,
+        isFixedPrice,
+        fromDate,
+        toDate,
+      },
     }));
 
     setSubmitting(false);
 
-    if (createAllocationThunk.fulfilled.match(result)) {
+    if (updateAllocationThunk.fulfilled.match(result)) {
       await dispatch(fetchAllocations());
-      navigateBackToPlanning();
+      navigateBack();
     } else {
-      Alert.alert('Errore', 'Creazione fallita. Riprova.');
+      const errorMessage =
+        typeof result.payload === 'string' && result.payload.trim().length > 0
+          ? result.payload
+          : 'Aggiornamento fallito. Riprova.';
+      Alert.alert('Errore', errorMessage);
     }
   };
 
@@ -89,6 +139,14 @@ export default function AddAllocationScreen({ navigation }: any) {
     );
   }
 
+  if (!allocation) {
+    return (
+      <View style={styles.centered}>
+        <Text style={{ color: Colors.mainTextColor }}>Allocation non trovata.</Text>
+      </View>
+    );
+  }
+  
   return (
     <ScrollView
       style={styles.container}
@@ -102,7 +160,7 @@ export default function AddAllocationScreen({ navigation }: any) {
           onValueChange={(val) => setSelectedEmployeeId(val)}
         >
           <Picker.Item label="Seleziona un employee..." value={null} />
-          {employees.map((e) => (
+          {pickerEmployees.map((e) => (
             <Picker.Item
               key={e.id}
               label={`${e.surname} ${e.name}`}
@@ -119,7 +177,7 @@ export default function AddAllocationScreen({ navigation }: any) {
           onValueChange={(val) => setSelectedProjectId(val)}
         >
           <Picker.Item label="Seleziona un progetto..." value={null} />
-          {projects.map((p) => (
+          {pickerProjects.map((p) => (
             <Picker.Item key={p.id} label={p.name} value={p.id} />
           ))}
         </Picker>
@@ -136,21 +194,21 @@ export default function AddAllocationScreen({ navigation }: any) {
       />
 
       <Text style={styles.label}>Sales Rate (€ / h)</Text>
-        <TextInput
-            style={styles.input}
-            value={salesRate}
-            onChangeText={setSalesRate}
-            keyboardType="numeric"
-            placeholder="es. 50"
-        />
-        <Text style={styles.label}>Fixed Price</Text>
-        <Pressable
-            style={[styles.fixedPriceButtonNo, isFixedPrice && styles.fixedPriceButtonYes]}
-            onPress={() => setIsFixedPrice(!isFixedPrice)}
-        >
-          <Text style={styles.fixedPriceText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
-        </Pressable>
+      <TextInput
+        style={styles.input}
+        value={salesRate}
+        onChangeText={setSalesRate}
+        keyboardType="numeric"
+        placeholder="es. 50"
+      />
 
+      <Text style={styles.label}>Fixed Price</Text>
+      <Pressable
+        style={[styles.fixedPriceButtonNo, isFixedPrice && styles.fixedPriceButtonYes]}
+        onPress={() => setIsFixedPrice(!isFixedPrice)}
+      >
+        <Text style={styles.fixedPriceText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
+      </Pressable>
 
       <Text style={styles.label}>Data inizio (YYYY-MM-DD)</Text>
       <TextInput
@@ -169,29 +227,28 @@ export default function AddAllocationScreen({ navigation }: any) {
         placeholder="es. 2025-12-31"
         keyboardType="numeric"
       />
+
       <View>
-          <Pressable
-        style={[styles.submitButton, submitting && styles.submitDisabled]}
-        onPress={handleSubmit}
-        disabled={submitting}
-      >
-        <Text style={styles.submitText}>
-          {submitting ? 'Salvataggio...' : 'Crea Allocation'}
-        </Text>
-      </Pressable>
-      <Pressable
-        onPress={navigateBackToPlanning}
-      >
-        <Text
-          style={{
-            color: Colors.mainTextColor,
-            textAlign: "center",
-            paddingVertical: 18,
-          }}
+        <Pressable
+          style={[styles.submitButton, submitting && styles.submitDisabled]}
+          onPress={handleSubmit}
+          disabled={submitting}
         >
-          Annulla
-        </Text>
-      </Pressable>
+          <Text style={styles.submitText}>
+            {submitting ? 'Salvataggio...' : 'Salva modifiche'}
+          </Text>
+        </Pressable>
+        <Pressable onPress={navigateBack}>
+          <Text
+            style={{
+              color: Colors.mainTextColor,
+              textAlign: 'center',
+              paddingVertical: 18,
+            }}
+          >
+            Annulla
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );

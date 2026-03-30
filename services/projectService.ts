@@ -8,6 +8,6 @@ export interface ProjectOption {
 }
 
 export async function getProjects(): Promise<ProjectOption[]> {
-  const res = await api.get('/api/projects?sort=name,asc');
+  const res = await api.get('/api/projects?sort=name,asc&size=500');
   return res.data;
 }

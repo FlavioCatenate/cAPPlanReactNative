@@ -16,13 +16,18 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Large allocation payloads can be expensive to traverse in development.
-        warnAfter: 128,
-        ignoredPaths: ['allocations.items'],
+        // Large payloads can be expensive to traverse in development.
+        warnAfter: 512,
+        ignoredPaths: [
+          'allocations.items',
+          'employees.items',
+          'projects.items',
+          'skills.items',
+        ],
         ignoredActionPaths: ['payload', 'meta.arg'],
       },
       immutableCheck: {
-        warnAfter: 128,
+        warnAfter: 512,
       },
     }),
 });

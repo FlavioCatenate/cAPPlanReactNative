@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+
+const PAGE_SIZE = 10;
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchAllocations,
@@ -19,12 +21,24 @@ const ItemSeparator = memo(function ItemSeparator() {
 
 interface AllocationListProps {
   items: AllocationListItem[];
+  hasMore: boolean;
+  onLoadMore: () => void;
   onPressDetail: (allocation: Allocation) => void;
   onPressOptions: (allocation: Allocation) => void;
 }
 
+const LoadMoreFooter = memo(function LoadMoreFooter({ onLoadMore }: { onLoadMore: () => void }) {
+  return (
+    <Pressable style={styles.loadMoreButton} onPress={onLoadMore}>
+      <Text style={styles.loadMoreText}>Carica altri</Text>
+    </Pressable>
+  );
+});
+
 const AllocationList = memo(function AllocationList({
   items,
+  hasMore,
+  onLoadMore,
   onPressDetail,
   onPressOptions,
 }: AllocationListProps) {
@@ -54,29 +68,42 @@ const AllocationList = memo(function AllocationList({
       renderItem={renderItem}
       ItemSeparatorComponent={ItemSeparator}
       contentContainerStyle={styles.listContent}
-      initialNumToRender={6}
-      maxToRenderPerBatch={6}
+      initialNumToRender={PAGE_SIZE}
+      maxToRenderPerBatch={PAGE_SIZE}
       windowSize={5}
       updateCellsBatchingPeriod={75}
-      removeClippedSubviews={true}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
+      ListFooterComponent={hasMore ? <LoadMoreFooter onLoadMore={onLoadMore} /> : null}
     />
   );
 });
 
 export default function AllocationPlanningScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
-  const items = useAppSelector(selectAllocationsWithUi);
+  const allItems = useAppSelector(selectAllocationsWithUi);
   const status = useAppSelector(selectAllocationsStatus);
   const error = useAppSelector(selectAllocationsError);
 
   const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  const items = useMemo(() => allItems.slice(0, visibleCount), [allItems, visibleCount]);
+  const hasMore = visibleCount < allItems.length;
+
+  const handleLoadMore = useCallback(() => {
+    setVisibleCount((prev) => prev + PAGE_SIZE);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllocations());
   }, [dispatch]);
+
+  // Reset paginazione quando i dati vengono ricaricati
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [allItems.length]);
 
   const handlePressOptions = useCallback((allocation: Allocation) => {
     setSelectedAllocation(allocation);
@@ -97,6 +124,21 @@ export default function AllocationPlanningScreen({ navigation }: any) {
 
     navigation.navigate('AllocationStack', { screen: 'AddAllocation' });
   }, [navigation]);
+
+  const handlePressEditAllocation = useCallback(() => {
+    setOptionsModalVisible(false);
+    if (!selectedAllocation) {
+      return;
+    }
+    const currentRouteNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+
+    if (currentRouteNames.includes('EditAllocation')) {
+      navigation.navigate('EditAllocation', { allocationId: selectedAllocation.id });
+      return;
+    }
+
+    navigation.navigate('AllocationStack', { screen: 'EditAllocation', params: { allocationId: selectedAllocation.id } });
+  }, [navigation, selectedAllocation]);
 
   if (status === 'loading') {
     return (
@@ -119,6 +161,8 @@ export default function AllocationPlanningScreen({ navigation }: any) {
 
       <AllocationList
         items={items}
+        hasMore={hasMore}
+        onLoadMore={handleLoadMore}
         onPressDetail={handlePressDetail}
         onPressOptions={handlePressOptions}
       />
@@ -131,7 +175,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
         <Text style={styles.fabText}>+</Text>
       </Pressable>
 
-      {/* Modal edit/delete — da espandere */}
+      {/* Modal edit/delete */}
       <Modal
         visible={optionsModalVisible}
         transparent
@@ -143,10 +187,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
             <Text style={styles.modalTitle}>
               {selectedAllocation?.employee?.name} {selectedAllocation?.employee?.surname}
             </Text>
-            <Pressable style={styles.modalOption} onPress={() => {
-              setOptionsModalVisible(false);
-              Alert.alert('Non disponibile', 'La schermata di modifica non e ancora configurata.');
-            }}>
+            <Pressable style={styles.modalOption} onPress={handlePressEditAllocation}>
               <Text style={styles.modalOptionText}>Modifica</Text>
             </Pressable>
             <Pressable style={[styles.modalOption, styles.modalDelete]} onPress={() => {
@@ -179,6 +220,19 @@ const styles = StyleSheet.create({
   },
   itemSeparator: {
     height: 20,
+  },
+  loadMoreButton: {
+    marginTop: 20,
+    marginBottom: 8,
+    paddingVertical: 14,
+    borderRadius: 10,
+    backgroundColor: Colors.surfaceColor,
+    alignItems: 'center',
+  },
+  loadMoreText: {
+    color: Colors.mainTextColor,
+    fontWeight: '600',
+    fontSize: 15,
   },
   centered: {
     flex: 1,

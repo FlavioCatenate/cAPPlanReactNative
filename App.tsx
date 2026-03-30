@@ -15,6 +15,7 @@ import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "./constants/colors";
 import { store } from "./store";
 import AddAllocationScreen from "./screens/AllocationPlanning/addAllocationScreen";
+import EditAllocationScreen from "./screens/AllocationPlanning/editAllocationScreen";
 
 const Stack = createNativeStackNavigator();
 const AllocationStack = createNativeStackNavigator();
@@ -96,6 +97,15 @@ function AllocationStackNavigator() {
         options={{
           headerShown: false,
           headerTitle: "Nuova Allocation",
+          headerBackTitle: "Indietro",
+        }}
+      />
+      <AllocationStack.Screen
+        name="EditAllocation"
+        component={EditAllocationScreen}
+        options={{
+          headerShown: false,
+          headerTitle: "Modifica Allocation",
           headerBackTitle: "Indietro",
         }}
       />
