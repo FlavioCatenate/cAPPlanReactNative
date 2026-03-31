@@ -54,7 +54,7 @@ export default function AllocationDetailScreen({ route, navigation }: any) {
           </Text>
 
           <Text style={styles.label}>Fixed Price</Text>
-          <Text style={styles.value}>
+          <Text style={[styles.value, { marginBottom: 10 }]}>
             {allocation.isFixedPrice ? "Yes" : "No"}
           </Text>
         </View>

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Alert, Platform } from 'react-native';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 const PAGE_SIZE = 10;
@@ -61,6 +61,11 @@ const AllocationList = memo(function AllocationList({
 
   const keyExtractor = useCallback((item: AllocationListItem) => item.id.toString(), []);
 
+  const footerComponent = useMemo(
+    () => (hasMore ? <LoadMoreFooter onLoadMore={onLoadMore} /> : null),
+    [hasMore, onLoadMore]
+  );
+
   return (
     <FlatList
       data={items}
@@ -68,13 +73,14 @@ const AllocationList = memo(function AllocationList({
       renderItem={renderItem}
       ItemSeparatorComponent={ItemSeparator}
       contentContainerStyle={styles.listContent}
-      initialNumToRender={PAGE_SIZE}
-      maxToRenderPerBatch={PAGE_SIZE}
-      windowSize={5}
-      updateCellsBatchingPeriod={75}
+      initialNumToRender={5}
+      maxToRenderPerBatch={5}
+      windowSize={3}
+      updateCellsBatchingPeriod={100}
+      removeClippedSubviews={Platform.OS === 'android'}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
-      ListFooterComponent={hasMore ? <LoadMoreFooter onLoadMore={onLoadMore} /> : null}
+      ListFooterComponent={footerComponent}
     />
   );
 });

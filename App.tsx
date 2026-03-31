@@ -165,33 +165,33 @@ function AppNavigator() {
   );
 }
 
-export default function App() {
-  function RootNavigator() {
-    const { isLoggedIn, isLoading } = useAuth();
+function RootNavigator() {
+  const { isLoggedIn, isLoading } = useAuth();
 
-    if (isLoading) {
-      return <SplashScreen />;
-    }
-
-    return (
-      <Stack.Navigator>
-        {!isLoggedIn ? (
-          <Stack.Screen
-            name="Login"
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-        ) : (
-          <Stack.Screen
-            name="MainApp"
-            component={AppNavigator}
-            options={{ headerShown: false }}
-          />
-        )}
-      </Stack.Navigator>
-    );
+  if (isLoading) {
+    return <SplashScreen />;
   }
 
+  return (
+    <Stack.Navigator>
+      {!isLoggedIn ? (
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{ headerShown: false }}
+        />
+      ) : (
+        <Stack.Screen
+          name="MainApp"
+          component={AppNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
   return (
     <Provider store={store}>
       <AuthProvider>
