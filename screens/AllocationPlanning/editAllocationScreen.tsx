@@ -1,15 +1,34 @@
 import {
-  View, Text, StyleSheet, TextInput,
-  Pressable, ScrollView, ActivityIndicator, Alert
-} from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchEmployees, selectEmployees, selectEmployeesStatus } from '../../store/slices/employeeSlice';
-import { fetchProjects, selectProjects, selectProjectsStatus } from '../../store/slices/projectSlice';
-import { fetchAllocations, selectAllocations, updateAllocationThunk } from '../../store/slices/allocationSlice';
-import Colors from '../../constants/colors';
-import Typography from '../../constants/typography';
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  fetchEmployees,
+  selectEmployees,
+  selectEmployeesStatus,
+} from "../../store/slices/employeeSlice";
+import {
+  fetchProjects,
+  selectProjects,
+  selectProjectsStatus,
+} from "../../store/slices/projectSlice";
+import {
+  fetchAllocations,
+  selectAllocations,
+  updateAllocationThunk,
+} from "../../store/slices/allocationSlice";
+import DatePickerInput from "../../components/DatePickerInput";
+import Colors from "../../constants/colors";
+import Typography from "../../constants/typography";
 
 export default function EditAllocationScreen({ route, navigation }: any) {
   const dispatch = useAppDispatch();
@@ -24,36 +43,42 @@ export default function EditAllocationScreen({ route, navigation }: any) {
 
   const allocation = useMemo(
     () => allocations.find((a) => a.id === allocationId),
-    [allocations, allocationId]
+    [allocations, allocationId],
   );
 
   // Safety-net: se l'employee/project dell'allocation non è nella lista (es. paginazione),
   // lo aggiungiamo manualmente così il picker mostra sempre il valore corrente.
   const pickerEmployees = useMemo(() => {
     const emp = allocation?.employee;
-    if (!emp?.id || employees.some((e) => e.id === Number(emp.id))) return employees;
+    if (!emp?.id || employees.some((e) => e.id === Number(emp.id)))
+      return employees;
     return [
-      { id: Number(emp.id), name: emp.name ?? '', surname: emp.surname ?? '' },
+      { id: Number(emp.id), name: emp.name ?? "", surname: emp.surname ?? "" },
       ...employees,
     ];
   }, [employees, allocation?.employee]);
 
   const pickerProjects = useMemo(() => {
     const proj = allocation?.project;
-    if (!proj?.id || projects.some((p) => p.id === Number(proj.id))) return projects;
+    if (!proj?.id || projects.some((p) => p.id === Number(proj.id)))
+      return projects;
     return [
-      { id: Number(proj.id), name: proj.name ?? '', type: '', isActive: true },
+      { id: Number(proj.id), name: proj.name ?? "", type: "", isActive: true },
       ...projects,
     ];
   }, [projects, allocation?.project]);
 
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  const [percentage, setPercentage] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null,
+  );
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null,
+  );
+  const [percentage, setPercentage] = useState("");
   const [isFixedPrice, setIsFixedPrice] = useState(false);
-  const [salesRate, setSalesRate] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [salesRate, setSalesRate] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const navigateBack = () => {
@@ -61,7 +86,7 @@ export default function EditAllocationScreen({ route, navigation }: any) {
       navigation.goBack();
       return;
     }
-    navigation.navigate('AllocationPlanning');
+    navigation.navigate("AllocationPlanning");
   };
 
   useEffect(() => {
@@ -72,50 +97,59 @@ export default function EditAllocationScreen({ route, navigation }: any) {
   // Pre-fill form once allocation and lists are available
   useEffect(() => {
     if (!allocation) return;
-    setSelectedEmployeeId(allocation.employee?.id != null ? Number(allocation.employee.id) : null);
-    setSelectedProjectId(allocation.project?.id != null ? Number(allocation.project.id) : null);
+    setSelectedEmployeeId(
+      allocation.employee?.id != null ? Number(allocation.employee.id) : null,
+    );
+    setSelectedProjectId(
+      allocation.project?.id != null ? Number(allocation.project.id) : null,
+    );
     setPercentage(String(allocation.percentage));
     setIsFixedPrice(allocation.isFixedPrice ?? false);
-    setSalesRate(allocation.salesRate != null ? String(allocation.salesRate) : '');
-    setFromDate(allocation.fromDate ?? '');
-    setToDate(allocation.toDate ?? '');
+    setSalesRate(
+      allocation.salesRate != null ? String(allocation.salesRate) : "",
+    );
+    setFromDate(allocation.fromDate ?? "");
+    setToDate(allocation.toDate ?? "");
   }, [allocation]);
 
-  const isLoading = employeesStatus === 'loading' || projectsStatus === 'loading';
+  const isLoading =
+    employeesStatus === "loading" || projectsStatus === "loading";
 
   const handleSubmit = async () => {
     if (!allocationId) {
-      Alert.alert('Errore', 'Allocation non trovata.');
+      Alert.alert("Errore", "Allocation non trovata.");
       return;
     }
     if (!selectedEmployeeId || !selectedProjectId) {
-      Alert.alert('Errore', 'Seleziona un employee e un progetto.');
+      Alert.alert("Errore", "Seleziona un employee e un progetto.");
       return;
     }
     const pct = parseInt(percentage, 10);
     if (isNaN(pct) || pct < 1 || pct > 100) {
-      Alert.alert('Errore', 'La percentuale deve essere tra 1 e 100.');
+      Alert.alert("Errore", "La percentuale deve essere tra 1 e 100.");
       return;
     }
     if (!fromDate || !toDate) {
-      Alert.alert('Errore', 'Inserisci le date di inizio e fine.');
+      Alert.alert("Errore", "Inserisci le date di inizio e fine.");
       return;
     }
 
     setSubmitting(true);
-    const result = await dispatch(updateAllocationThunk({
-      id: allocationId,
-      data: {
+    const result = await dispatch(
+      updateAllocationThunk({
         id: allocationId,
-        employee: { id: selectedEmployeeId } as any,
-        project: { id: selectedProjectId } as any,
-        percentage: pct,
-        salesRate: salesRate ? parseFloat(salesRate) : undefined,
-        isFixedPrice,
-        fromDate,
-        toDate,
-      },
-    }));
+        data: {
+          id: allocationId,
+          employee: { id: selectedEmployeeId } as any,
+          project: { id: selectedProjectId } as any,
+          percentage: pct,
+          salesRate: salesRate ? parseFloat(salesRate) : undefined,
+          isFixedPrice,
+          fromDate,
+          toDate,
+        },
+      }),
+    );
 
     setSubmitting(false);
 
@@ -124,10 +158,10 @@ export default function EditAllocationScreen({ route, navigation }: any) {
       navigateBack();
     } else {
       const errorMessage =
-        typeof result.payload === 'string' && result.payload.trim().length > 0
+        typeof result.payload === "string" && result.payload.trim().length > 0
           ? result.payload
-          : 'Aggiornamento fallito. Riprova.';
-      Alert.alert('Errore', errorMessage);
+          : "Aggiornamento fallito. Riprova.";
+      Alert.alert("Errore", errorMessage);
     }
   };
 
@@ -142,11 +176,13 @@ export default function EditAllocationScreen({ route, navigation }: any) {
   if (!allocation) {
     return (
       <View style={styles.centered}>
-        <Text style={{ color: Colors.mainTextColor }}>Allocation non trovata.</Text>
+        <Text style={{ color: Colors.mainTextColor }}>
+          Allocation non trovata.
+        </Text>
       </View>
     );
   }
-  
+
   return (
     <ScrollView
       style={styles.container}
@@ -204,28 +240,27 @@ export default function EditAllocationScreen({ route, navigation }: any) {
 
       <Text style={styles.label}>Fixed Price</Text>
       <Pressable
-        style={[styles.fixedPriceButtonNo, isFixedPrice && styles.fixedPriceButtonYes]}
+        style={[
+          styles.fixedPriceButtonNo,
+          isFixedPrice && styles.fixedPriceButtonYes,
+        ]}
         onPress={() => setIsFixedPrice(!isFixedPrice)}
       >
-        <Text style={styles.fixedPriceText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
+        <Text style={styles.fixedPriceText}>{isFixedPrice ? "Yes" : "No"}</Text>
       </Pressable>
 
       <Text style={styles.label}>Data inizio (YYYY-MM-DD)</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
+        label="Data inizio"
         value={fromDate}
-        onChangeText={setFromDate}
-        placeholder="es. 2025-01-01"
-        keyboardType="numeric"
+        onChange={setFromDate}
       />
 
       <Text style={styles.label}>Data fine (YYYY-MM-DD)</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
+        label="Data fine"
         value={toDate}
-        onChangeText={setToDate}
-        placeholder="es. 2025-12-31"
-        keyboardType="numeric"
+        onChange={setToDate}
       />
 
       <View>
@@ -235,14 +270,14 @@ export default function EditAllocationScreen({ route, navigation }: any) {
           disabled={submitting}
         >
           <Text style={styles.submitText}>
-            {submitting ? 'Salvataggio...' : 'Salva modifiche'}
+            {submitting ? "Salvataggio..." : "Salva modifiche"}
           </Text>
         </Pressable>
         <Pressable onPress={navigateBack}>
           <Text
             style={{
               color: Colors.mainTextColor,
-              textAlign: 'center',
+              textAlign: "center",
               paddingVertical: 18,
             }}
           >
@@ -265,13 +300,13 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.backgroundColor,
   },
   label: {
     ...Typography.body,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.mainTextColor,
     marginBottom: 6,
     marginTop: 16,
@@ -280,7 +315,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.backgroundColor,
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: Colors.surfaceColor,
   },
   input: {
@@ -297,14 +332,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.errorColor,
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   fixedPriceButtonYes: {
     backgroundColor: Colors.successColor,
   },
   fixedPriceText: {
     color: Colors.surfaceColor,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 16,
   },
   submitButton: {
@@ -312,14 +347,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondaryGray,
     padding: 16,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   submitDisabled: {
     opacity: 0.6,
   },
   submitText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
 });

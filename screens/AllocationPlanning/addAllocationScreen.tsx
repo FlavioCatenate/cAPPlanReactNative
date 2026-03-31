@@ -1,15 +1,33 @@
 import {
-  View, Text, StyleSheet, TextInput,
-  Pressable, ScrollView, ActivityIndicator, Alert
-} from 'react-native';
-import { useEffect, useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
-import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { fetchEmployees, selectEmployees, selectEmployeesStatus } from '../../store/slices/employeeSlice';
-import { fetchProjects, selectProjects, selectProjectsStatus } from '../../store/slices/projectSlice';
-import { createAllocationThunk, fetchAllocations } from '../../store/slices/allocationSlice';
-import Colors from '../../constants/colors';
-import Typography from '../../constants/typography';
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Pressable,
+  ScrollView,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
+import { useEffect, useState } from "react";
+import { Picker } from "@react-native-picker/picker";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  fetchEmployees,
+  selectEmployees,
+  selectEmployeesStatus,
+} from "../../store/slices/employeeSlice";
+import {
+  fetchProjects,
+  selectProjects,
+  selectProjectsStatus,
+} from "../../store/slices/projectSlice";
+import {
+  createAllocationThunk,
+  fetchAllocations,
+} from "../../store/slices/allocationSlice";
+import DatePickerInput from "../../components/DatePickerInput";
+import Colors from "../../constants/colors";
+import Typography from "../../constants/typography";
 
 export default function AddAllocationScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
@@ -19,13 +37,17 @@ export default function AddAllocationScreen({ navigation }: any) {
   const employeesStatus = useAppSelector(selectEmployeesStatus);
   const projectsStatus = useAppSelector(selectProjectsStatus);
 
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(null);
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  const [percentage, setPercentage] = useState('');
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState<number | null>(
+    null,
+  );
+  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(
+    null,
+  );
+  const [percentage, setPercentage] = useState("");
   const [isFixedPrice, setIsFixedPrice] = useState(false);
-  const [salesRate, setSalesRate] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
+  const [salesRate, setSalesRate] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const navigateBackToPlanning = () => {
@@ -34,7 +56,7 @@ export default function AddAllocationScreen({ navigation }: any) {
       return;
     }
 
-    navigation.navigate('AllocationPlanning');
+    navigation.navigate("AllocationPlanning");
   };
 
   useEffect(() => {
@@ -43,33 +65,36 @@ export default function AddAllocationScreen({ navigation }: any) {
     if (projects.length === 0) dispatch(fetchProjects());
   }, [dispatch, employees.length, projects.length]);
 
-  const isLoading = employeesStatus === 'loading' || projectsStatus === 'loading';
+  const isLoading =
+    employeesStatus === "loading" || projectsStatus === "loading";
 
   const handleSubmit = async () => {
     if (!selectedEmployeeId || !selectedProjectId) {
-      Alert.alert('Errore', 'Seleziona un employee e un progetto.');
+      Alert.alert("Errore", "Seleziona un employee e un progetto.");
       return;
     }
     const pct = parseInt(percentage, 10);
     if (isNaN(pct) || pct < 1 || pct > 100) {
-      Alert.alert('Errore', 'La percentuale deve essere tra 1 e 100.');
+      Alert.alert("Errore", "La percentuale deve essere tra 1 e 100.");
       return;
     }
     if (!fromDate || !toDate) {
-      Alert.alert('Errore', 'Inserisci le date di inizio e fine.');
+      Alert.alert("Errore", "Inserisci le date di inizio e fine.");
       return;
     }
 
     setSubmitting(true);
-    const result = await dispatch(createAllocationThunk({
-      employee: { id: selectedEmployeeId } as any,
-      project: { id: selectedProjectId } as any,
-      percentage: pct,
-      salesRate: salesRate ? parseFloat(salesRate) : undefined,
-      isFixedPrice,
-      fromDate,
-      toDate,
-    }));
+    const result = await dispatch(
+      createAllocationThunk({
+        employee: { id: selectedEmployeeId } as any,
+        project: { id: selectedProjectId } as any,
+        percentage: pct,
+        salesRate: salesRate ? parseFloat(salesRate) : undefined,
+        isFixedPrice,
+        fromDate,
+        toDate,
+      }),
+    );
 
     setSubmitting(false);
 
@@ -77,7 +102,7 @@ export default function AddAllocationScreen({ navigation }: any) {
       await dispatch(fetchAllocations());
       navigateBackToPlanning();
     } else {
-      Alert.alert('Errore', 'Creazione fallita. Riprova.');
+      Alert.alert("Errore", "Creazione fallita. Riprova.");
     }
   };
 
@@ -136,62 +161,58 @@ export default function AddAllocationScreen({ navigation }: any) {
       />
 
       <Text style={styles.label}>Sales Rate (€ / h)</Text>
-        <TextInput
-            style={styles.input}
-            value={salesRate}
-            onChangeText={setSalesRate}
-            keyboardType="numeric"
-            placeholder="es. 50"
-        />
-        <Text style={styles.label}>Fixed Price</Text>
-        <Pressable
-            style={[styles.fixedPriceButtonNo, isFixedPrice && styles.fixedPriceButtonYes]}
-            onPress={() => setIsFixedPrice(!isFixedPrice)}
-        >
-          <Text style={styles.fixedPriceText}>{isFixedPrice ? 'Yes' : 'No'}</Text>
-        </Pressable>
-
-
-      <Text style={styles.label}>Data inizio (YYYY-MM-DD)</Text>
       <TextInput
         style={styles.input}
-        value={fromDate}
-        onChangeText={setFromDate}
-        placeholder="es. 2025-01-01"
+        value={salesRate}
+        onChangeText={setSalesRate}
         keyboardType="numeric"
+        placeholder="es. 50"
+      />
+      <Text style={styles.label}>Fixed Price</Text>
+      <Pressable
+        style={[
+          styles.fixedPriceButtonNo,
+          isFixedPrice && styles.fixedPriceButtonYes,
+        ]}
+        onPress={() => setIsFixedPrice(!isFixedPrice)}
+      >
+        <Text style={styles.fixedPriceText}>{isFixedPrice ? "Yes" : "No"}</Text>
+      </Pressable>
+
+      <Text style={styles.label}>Data inizio (YYYY-MM-DD)</Text>
+      <DatePickerInput
+        label="Data inizio"
+        value={fromDate}
+        onChange={setFromDate}
       />
 
       <Text style={styles.label}>Data fine (YYYY-MM-DD)</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
+        label="Data fine"
         value={toDate}
-        onChangeText={setToDate}
-        placeholder="es. 2025-12-31"
-        keyboardType="numeric"
+        onChange={setToDate}
       />
       <View>
-          <Pressable
-        style={[styles.submitButton, submitting && styles.submitDisabled]}
-        onPress={handleSubmit}
-        disabled={submitting}
-      >
-        <Text style={styles.submitText}>
-          {submitting ? 'Salvataggio...' : 'Crea Allocation'}
-        </Text>
-      </Pressable>
-      <Pressable
-        onPress={navigateBackToPlanning}
-      >
-        <Text
-          style={{
-            color: Colors.mainTextColor,
-            textAlign: "center",
-            paddingVertical: 18,
-          }}
+        <Pressable
+          style={[styles.submitButton, submitting && styles.submitDisabled]}
+          onPress={handleSubmit}
+          disabled={submitting}
         >
-          Annulla
-        </Text>
-      </Pressable>
+          <Text style={styles.submitText}>
+            {submitting ? "Salvataggio..." : "Crea Allocation"}
+          </Text>
+        </Pressable>
+        <Pressable onPress={navigateBackToPlanning}>
+          <Text
+            style={{
+              color: Colors.mainTextColor,
+              textAlign: "center",
+              paddingVertical: 18,
+            }}
+          >
+            Annulla
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -208,13 +229,13 @@ const styles = StyleSheet.create({
   },
   centered: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Colors.backgroundColor,
   },
   label: {
     ...Typography.body,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.mainTextColor,
     marginBottom: 6,
     marginTop: 16,
@@ -223,7 +244,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.backgroundColor,
     borderRadius: 8,
-    overflow: 'hidden',
+    overflow: "hidden",
     backgroundColor: Colors.surfaceColor,
   },
   input: {
@@ -240,14 +261,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.errorColor,
     padding: 12,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   fixedPriceButtonYes: {
     backgroundColor: Colors.successColor,
   },
   fixedPriceText: {
     color: Colors.surfaceColor,
-    fontWeight: '600',
+    fontWeight: "600",
     fontSize: 16,
   },
   submitButton: {
@@ -255,14 +276,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.secondaryGray,
     padding: 16,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
   },
   submitDisabled: {
     opacity: 0.6,
   },
   submitText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 16,
   },
 });
