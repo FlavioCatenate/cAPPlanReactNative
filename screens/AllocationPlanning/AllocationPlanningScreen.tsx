@@ -8,7 +8,7 @@ import {
   selectAllocationsWithUi,
   selectAllocationsStatus,
   selectAllocationsError,
-  deleteAllocationThunk as deleteAllocation,
+  deleteAllocationThunk as deleteAllocationAction,
   type Allocation,
   type AllocationListItem,
 } from '../../store/slices/allocationSlice';
@@ -32,6 +32,18 @@ const LoadMoreFooter = memo(function LoadMoreFooter({ onLoadMore }: { onLoadMore
     <Pressable style={styles.loadMoreButton} onPress={onLoadMore}>
       <Text style={styles.loadMoreText}>Carica altri</Text>
     </Pressable>
+  );
+});
+
+const EmptyState = memo(function EmptyState() {
+  return (
+    <View style={styles.emptyStateContainer}>
+      <Text style={styles.emptyStateIcon}>📋</Text>
+      <Text style={styles.emptyStateTitle}>Nessuna Allocation</Text>
+      <Text style={styles.emptyStateSubtitle}>
+        Crea la tua prima allocation premendo il bottone + in basso a destra
+      </Text>
+    </View>
   );
 });
 
@@ -66,6 +78,11 @@ const AllocationList = memo(function AllocationList({
     [hasMore, onLoadMore]
   );
 
+  // Empty state when no items
+  if (items.length === 0) {
+    return <EmptyState />;
+  }
+
   return (
     <FlatList
       data={items}
@@ -94,6 +111,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
   const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const items = useMemo(() => allItems.slice(0, visibleCount), [allItems, visibleCount]);
   const hasMore = visibleCount < allItems.length;
@@ -143,8 +161,45 @@ export default function AllocationPlanningScreen({ navigation }: any) {
       return;
     }
 
-    navigation.navigate('AllocationStack', { screen: 'EditAllocation', params: { allocationId: selectedAllocation.id } });
+    navigation.navigate('AllocationStack', {
+      screen: 'EditAllocation',
+      params: { allocationId: selectedAllocation.id }
+    });
   }, [navigation, selectedAllocation]);
+
+  /**
+   * Handle delete con conferma + loading state
+   */
+  const handleDeleteAllocation = useCallback(() => {
+    if (!selectedAllocation) return;
+
+    Alert.alert(
+      'Conferma Eliminazione',
+      `Vuoi veramente eliminare l'allocation di ${selectedAllocation.employee?.name}?`,
+      [
+        {
+          text: 'Annulla',
+          style: 'cancel',
+        },
+        {
+          text: 'Elimina',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleteLoading(true);
+            const result = await dispatch(deleteAllocationAction(selectedAllocation.id));
+            setDeleteLoading(false);
+
+            if (deleteAllocationAction.fulfilled.match(result)) {
+              setOptionsModalVisible(false);
+              setSelectedAllocation(null);
+            } else {
+              Alert.alert('Errore', 'Eliminazione fallita. Riprova.');
+            }
+          },
+        },
+      ]
+    );
+  }, [selectedAllocation, dispatch]);
 
   if (status === 'loading') {
     return (
@@ -177,6 +232,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
       <Pressable
         style={styles.fab}
         onPress={handlePressAddAllocation}
+        android_ripple={{ color: 'rgba(255,255,255,0.2)' }}
       >
         <Text style={styles.fabText}>+</Text>
       </Pressable>
@@ -188,23 +244,34 @@ export default function AllocationPlanningScreen({ navigation }: any) {
         animationType="fade"
         onRequestClose={() => setOptionsModalVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setOptionsModalVisible(false)}>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setOptionsModalVisible(false)}
+        >
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>
               {selectedAllocation?.employee?.name} {selectedAllocation?.employee?.surname}
             </Text>
-            <Pressable style={styles.modalOption} onPress={handlePressEditAllocation}>
+            <Text style={styles.modalSubtitle}>
+              {selectedAllocation?.project?.name}
+            </Text>
+
+            <Pressable
+              style={styles.modalOption}
+              onPress={handlePressEditAllocation}
+              disabled={deleteLoading}
+            >
               <Text style={styles.modalOptionText}>Modifica</Text>
             </Pressable>
-            <Pressable style={[styles.modalOption, styles.modalDelete]} onPress={() => {
-              setOptionsModalVisible(false);
-              if (!selectedAllocation) {
-                return;
-              }
 
-              dispatch(deleteAllocation(selectedAllocation.id));
-            }}>
-              <Text style={[styles.modalOptionText, styles.modalDeleteText]}>Elimina</Text>
+            <Pressable
+              style={[styles.modalOption, styles.modalDelete]}
+              onPress={handleDeleteAllocation}
+              disabled={deleteLoading}
+            >
+              <Text style={[styles.modalOptionText, styles.modalDeleteText]}>
+                {deleteLoading ? 'Eliminando...' : 'Elimina'}
+              </Text>
             </Pressable>
           </View>
         </Pressable>
@@ -240,6 +307,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 15,
   },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 40,
+  },
+  emptyStateIcon: {
+    fontSize: 64,
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: Colors.mainTextColor,
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+  },
   centered: {
     flex: 1,
     justifyContent: 'center',
@@ -248,6 +337,8 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: Colors.errorColor,
+    fontSize: 16,
+    fontWeight: '500',
   },
   fab: {
     position: 'absolute',
@@ -256,18 +347,19 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.backgroundColor,
+    backgroundColor: Colors.lightGray, 
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 5,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8, 
   },
   fabText: {
     fontSize: 28,
-    color: '#000000',
+    color: Colors.mainTextColor,
+    fontWeight: '400',
     lineHeight: 32,
   },
   modalOverlay: {
@@ -285,9 +377,15 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Colors.mainTextColor,
     marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 13,
+    color: Colors.mainTextColor,
+    marginBottom: 12,
+    fontWeight: '500',
   },
   modalOption: {
     paddingVertical: 12,
@@ -298,6 +396,7 @@ const styles = StyleSheet.create({
   modalOptionText: {
     fontSize: 15,
     color: Colors.mainTextColor,
+    fontWeight: '500',
   },
   modalDelete: {
     backgroundColor: Colors.errorColor + '18',
