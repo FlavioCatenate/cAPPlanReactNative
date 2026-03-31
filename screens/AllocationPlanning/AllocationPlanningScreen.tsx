@@ -90,19 +90,21 @@ const AllocationList = memo(function AllocationList({
       renderItem={renderItem}
       ItemSeparatorComponent={ItemSeparator}
       contentContainerStyle={styles.listContent}
-      initialNumToRender={5}
-      maxToRenderPerBatch={5}
-      windowSize={3}
-      updateCellsBatchingPeriod={100}
+      initialNumToRender={8}
+      maxToRenderPerBatch={8}
+      windowSize={5}
+      updateCellsBatchingPeriod={50}
       removeClippedSubviews={Platform.OS === 'android'}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
       ListFooterComponent={footerComponent}
+      scrollEventThrottle={16}
+      onEndReachedThreshold={0.5}
     />
   );
 });
 
-export default function AllocationPlanningScreen({ navigation }: any) {
+export default memo(function AllocationPlanningScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
   const allItems = useAppSelector(selectAllocationsWithUi);
   const status = useAppSelector(selectAllocationsStatus);
@@ -166,6 +168,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
       params: { allocationId: selectedAllocation.id }
     });
   }, [navigation, selectedAllocation]);
+
 
   /**
    * Handle delete con conferma + loading state
@@ -279,7 +282,7 @@ export default function AllocationPlanningScreen({ navigation }: any) {
 
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {

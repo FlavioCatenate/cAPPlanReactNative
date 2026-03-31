@@ -1,426 +1,222 @@
-# cAPPlan - Documentazione Progetto
+# cAPPlan React Native
 
----
+Applicazione mobile per Capacity Planning con autenticazione, navigazione a drawer e gestione allocation (lista, dettaglio, creazione, modifica, eliminazione).
 
-## 🚀 Quick Start - Comandi per Avviare il Progetto
+## Stack Tecnologico
 
-### Prerequisiti
+- React Native 0.81.5
+- Expo SDK 54
+- TypeScript 5.9
+- React Navigation 7 (native stack + drawer)
+- Redux Toolkit + React Redux
+- Axios
+- expo-secure-store
+- react-native-date-picker
+- @react-native-picker/picker
 
-1. **Node.js** (v16 o superiore)
-2. **npm** o **yarn**
-3. **Expo CLI**: `npm install -g expo-cli`
-4. Per iOS: **Xcode** (Mac)
-5. Per Android: **Android Studio**
+## Prerequisiti
 
-# Installare le dipendenze
+1. Node.js 18+ (consigliato LTS)
+2. npm
+3. Android Studio (Android SDK + emulator)
+4. Xcode (solo macOS, per iOS)
+5. Expo CLI opzionale (puoi usare anche npx expo)
 
+## Avvio Progetto
+
+### 1) Installazione dipendenze
+
+```bash
 npm install
+```
 
-### Comandi Disponibili
+### 2) Avvio Metro / Expo
 
-# Avviare il progetto in modalità Expo (QR code)
-
+```bash
 npm start
+```
 
-# Avviare direttamente su Android
+### 3) Build nativa Android
 
+```bash
 npm run android
+```
 
-# Avviare direttamente su iOS
+Equivalente:
 
+```bash
+npx expo run:android
+```
+
+### 4) Build nativa iOS (solo macOS)
+
+```bash
 npm run ios
-
----
-
-## 📲 Come Avviare l'Applicazione
-
-### Opzione 1: Con QR Code Expo (Consigliato per Start Rapido)
-
-Questo è il metodo più veloce per testare l'app su un dispositivo fisico.
-
-#### Passaggi:
-
-1. **Avviare il server Expo:**
-   npm start
-
-   Nel terminale apparirà un QR code e un menu con opzioni.
-
-2. **Su iOS (da iPhone/iPad):**
-   - Aprire l'app **Camera** nativa
-   - Inquadrare il QR code
-   - Tap sul link notificato "Open with Expo Go"
-   - L'app si caricherà automaticamente in Expo Go
-
-3. **Su Android:**
-   - Scaricare l'app **Expo Go** dal Play Store
-   - Aprire Expo Go
-   - Scansionare il QR code dal terminale
-   - L'app si caricherà automaticamente
-
-### Opzione 2: Con Xcode (iOS)
-
-Permette di testare e debuggare su iOS con tutti gli strumenti nativi.
-
-#### Passaggi:
-
-1. **Assicurarsi di essere su Mac** (Xcode è solo su macOS)
-
-2. **Avviare il build per iOS:**
-
-   npm run ios
-
-   Questo comando:
-   - Buildà il progetto
-   - Aprirà automaticamente l'iOS Simulator
-   - Installerà e lancerà l'app
-
-3. **Manualmente con Xcode:**
-
-   npx expo run:ios
-
-   Se desideri controllare Xcode direttamente:
-   - Navigare a `ios/` (se disponibile dopo build)
-   - Aprire il file `.xcworkspace`
-   - Premere il pulsante Play in Xcode
-
-### Opzione 3: Con Android Studio (Android)
-
-Permette di testare e debuggare su Android con tutti gli strumenti nativi.
-
-#### Passaggi:
-
-1. **Avviare il build per Android:**
-
-   npm run android
-
-   Questo comando:
-   - Buildà il progetto
-   - Lancerà l'Android Emulator (se non è già aperto)
-   - Installerà e lancerà l'app
-
-2. **Manualmente con Android Studio:**
-
-   npx expo run:android
-
-   Se desideri controllare Android Studio direttamente:
-   - Aprire Android Studio
-   - Selezionare "Open" e navigare alla radice del progetto
-   - Android Studio riconosce il progetto React Native/Expo
-   - Eseguire il progetto dall'IDE
-
-3. **Su dispositivo fisico Android collegato:**
-
-   npm run android
-
-   Il dispositivo deve avere il debug USB attivato:
-   - Andrare in Impostazioni → Info sul telefono
-   - Toccare 7 volte il numero di build
-   - Tornare in Impostazioni → Opzioni sviluppatore
-   - Attivare "Debug USB"
-
----
-
-## 📁 Struttura delle Cartelle
-
-```
-cAPPlanReactNative/
-├── assets/                    # Risorse statiche
-│   └── images/               # Loghi, icone, immagini
-├── components/               # Componenti React Native riutilizzabili
-│   └── HomeButton.tsx       # Bottone per la home
-├── constants/                # Costanti dell'applicazione
-│   ├── colors.tsx           # Palette colori globale
-│   └── typography.tsx       # Stili tipografici globali
-├── context/                  # Context API per state management
-│   └── AuthContext.tsx      # Gestione dello stato di autenticazione
-├── screens/                  # Schermate principali dell'app
-│   ├── LoginScreen.tsx      # Schermata di login
-│   ├── HomeScreen.tsx       # Schermata principale
-│   └── EditProfileScreen.tsx # Schermata edit profilo
-├── services/                 # Servizi API e business logic
-│   ├── api.ts              # Istanza Axios configurata
-│   └── authService.ts      # Funzioni di autenticazione
-├── documentation/            # Questa documentazione
-├── App.tsx                  # Componente root dell'app
-├── app.json                 # Configurazione Expo
-├── package.json             # Dipendenze e scripts
-├── tsconfig.json            # Configurazione TypeScript
-└── index.ts                 # Entry point dell'app
 ```
 
-### Descrizione Dettagliata Cartelle
+## Scripts Disponibili
 
-| Cartella          | Scopo                                                                                                          |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| **assets**        | Memorizza tutte le risorse statiche (immagini, icone, fonts). In `images/` sono presenti logo e splash screen. |
-| **components**    | Componenti React riutilizzabili. Ogni componente è isolato e può essere importato in diversi schermi.          |
-| **constants**     | File con costanti globali. `colors.tsx` definisce la palette colori, `typography.tsx` gli stili di testo.      |
-| **context**       | Context API di React per la gestione dello stato globale, in particolare l'autenticazione.                     |
-| **screens**       | Le schermate principali dell'app. Ogni screen corrisponde a una rotta di navigazione.                          |
-| **services**      | Logica di comunicazione con il backend (API calls). Centralizza tutte le richieste HTTP.                       |
-| **documentation** | File di documentazione e guide (questo file).                                                                  |
+Da package.json:
 
----
+- `npm start` -> `expo start`
+- `npm run android` -> `expo run:android`
+- `npm run ios` -> `expo run:ios`
+- `npm run web` -> `expo start --web`
 
-## 🔐 Flusso di Autenticazione Login
+## Architettura Applicazione
 
-L'autenticazione è gestita attraverso un flusso ben strutturato utilizzando Context API e Secure Store.
+### Provider principali
 
-### Architettura
+In App.tsx l'app e' avvolta da:
 
-```
-LoginScreen
-    ↓
-handleLogin() (chiama authService)
-    ↓
-login (authService) → POST /api/authenticate
-    ↓
-Token salvato in SecureStore
-    ↓
-loggedAccount (authService) → GET /api/account
-    ↓
-User salvato in AuthContext
-    ↓
-Navigate to HomeScreen
-```
+1. Redux `Provider`
+2. `AuthProvider` (context autenticazione)
+3. `SafeAreaProvider`
+4. `NavigationContainer`
 
-### Componenti Coinvolti
+### Navigazione
 
-#### 1. **LoginScreen.tsx** - Interfaccia Utente
+- Root stack:
+  - `Login` (utente non autenticato)
+  - `MainApp` (utente autenticato)
+- `MainApp` usa un Drawer con:
+  - `Home`
+  - `EditProfile`
+  - `AllocationStack`
+- `AllocationStack` include:
+  - `AllocationPlanning`
+  - `AddAllocation`
+  - `EditAllocation`
+  - `AllocationDetail`
 
-- Form con campi: `username` e `password`
-- Pulsante "Continue" per inviare le credenziali
-- Gestisce i tentativi di login e gli errori
-- Utilizza `KeyboardAwareScrollView` per gestire la tastiera su iOS/Android
-- Login gradient background
+## Flusso di Autenticazione
 
-```tsx
-const handleLogin = async () => {
-  try {
-    // 1. Effettua il login
-    const response = await login(username, password);
+### Login
 
-    // 2. Salva il token in memoria sicura
-    await SecureStore.setItemAsync("auth_token", response.id_token);
+La login usa un thunk Redux (`loginThunk`) che:
 
-    // 3. Recupera i dati dell'utente loggato
-    const loggedAccountRes = await loggedAccount();
+1. Chiama `POST /api/authenticate`
+2. Salva `id_token` in Secure Store (`auth_token`)
+3. Recupera il profilo utente con `GET /api/account`
+4. Aggiorna lo stato auth
 
-    // 4. Salva l'utente nel context globale
-    setUser(loggedAccountRes);
+### Persistenza sessione
 
-    // 5. Naviga alla home
-    navigation.replace("Home");
-  } catch (error) {
-    Alert.alert("Login Failed", "Check credentials and try again.");
-  }
-};
-```
-
-#### 2. **authService.ts** - Logica di Autenticazione
-
-Contiene due funzioni principali:
-
-- **`login(username, password)`**
-  - Effettua una richiesta POST a `/api/authenticate`
-  - Invia username e password
-  - Ritorna un oggetto con `id_token`
-
-- **`loggedAccount()`**
-  - Effettua una richiesta GET a `/api/account`
-  - Richiede autenticazione (token nel header)
-  - Ritorna i dati completi dell'utente loggato
-
-#### 3. **AuthContext.tsx** - State Management Globale
-
-Gestisce lo stato di autenticazione dell'intera app:
-
-- **User Data**: Memorizza i dati dell'utente corrente
-- **isLoggedIn**: Boolean che indica se l'utente è autenticato
-- **setUser**: Funzione per aggiornare i dati utente
-- **logout**: Funzione per disconnettere l'utente
-
-```tsx
-interface User {
-  id: number;
-  login: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  activated: boolean;
-  langKey: string;
-  createdDate: string | null;
-  createdBy: string;
-  lastModifiedDate: string;
-  lastModifiedBy: string;
-  authorities: string[];
-  imageUrl: string;
-}
-```
-
-#### 4. **api.ts** - Configurazione HTTP
-
-- Utilizza **Axios** per le richieste HTTP
-- **Base URL**:
-- **Timeout**: 10 secondi
-- **Interceptore**: Aggiunge automaticamente il token di autenticazione da SecureStore a ogni richiesta
-
-```tsx
-api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync("auth_token");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-```
-
-#### 5. **App.tsx** - Stack di Navigazione
-
-- **AuthProvider** avvolge tutta l'app (wrapping)
-- **Stack.Navigator** gestisce tre schermi:
-  - `Login` (iniziale, nessun header)
-  - `Home` (header con titolo)
-  - `EditProfile` (header con titolo)
-
-### Flusso Dettagliato Step-by-Step
-
-1. **App Start**
-   - App.tsx renderizza il LoginScreen per default
-   - AuthProvider fornisce il context globale
-
-2. **Utente Inserisce Credenziali**
-   - username e password sono salvati nello state locale di LoginScreen
-
-3. **Utente Clicca "Continue"**
-   - Viene chiamato `handleLogin()`
-
-4. **Richiesta Authentication**
-   - `login()` invia POST a `/api/authenticate`
-   - Backend verifica le credenziali
-
-5. **Token Salvato**
-   - Se credenziali corrette, ritorna `id_token`
-   - Token salvato in **SecureStore** (memoria crittografata del dispositivo)
-
-6. **Recupero Dati Utente**
-   - `loggedAccount()` invia GET a `/api/account`
-   - L'interceptor Axios aggiunge automaticamente il token
-   - Backend ritorna i dati dell'utente
-
-7. **Aggiornamento Context**
-   - `setUser()` aggiorna lo stato globale in AuthContext
-   - `isLoggedIn` diventa `true`
-
-8. **Navigazione**
-   - `navigation.replace("Home")` naviga alla HomeScreen
-   - `replace` (non `navigate`) rimuove LoginScreen dallo stack di navigazione
-
-9. **Persistenza**
-   - Token rimane in SecureStore tra i riavvii
-   - (Futura implementazione: check token al riavvio per skip LOGIN se ancora valido)
+Al bootstrap, `AuthProvider` controlla il token salvato e prova a caricare l'account.
+Se il token non e' valido, viene rimosso automaticamente.
 
 ### Logout
 
-```tsx
-const logout = () => {
-  SecureStore.deleteItemAsync("auth_token");
-  setUser(null);
-};
+Logout elimina il token da Secure Store e resetta l'utente in memoria.
+
+## Modulo Allocation Planning
+
+La gestione allocation e' basata su Redux Toolkit:
+
+- Slice: `allocations`, `employees`, `projects`, `skills`, `auth`
+- Thunk principali allocation:
+  - `fetchAllocations`
+  - `createAllocationThunk`
+  - `updateAllocationThunk`
+  - `deleteAllocationThunk`
+
+### Schermate principali allocation
+
+- `AllocationPlanningScreen`
+  - lista ottimizzata con paginazione client (`Carica altri`)
+  - FAB per aggiunta allocation
+  - modal opzioni per modifica/eliminazione
+- `AddAllocationScreen`
+  - form con employee, progetto, percentuale, sales rate, fixed price, date
+- `EditAllocationScreen`
+  - prefill dati allocation e update
+- `AllocationDetailScreen`
+  - riepilogo allocation con indicatori visuali di stato
+
+### Date picker
+
+Il componente `DatePickerInput` usa `react-native-date-picker` in modal e normalizza il formato data su `YYYY-MM-DD`.
+
+## Backend e API
+
+Client HTTP centralizzato in `services/api.ts`:
+
+- Base URL Android emulator: `http://10.0.2.2:9074`
+- Timeout: 10s
+- Interceptor request: aggiunge `Authorization: Bearer <token>` se presente
+
+Endpoint attualmente usati:
+
+- Auth:
+  - `POST /api/authenticate`
+  - `GET /api/account`
+- Allocation:
+  - `GET /api/employee-projects?eagerload=true&sort=id,asc`
+  - `POST /api/employee-projects`
+  - `PUT /api/employee-projects/{id}`
+  - `DELETE /api/employee-projects/{id}`
+- Lookup:
+  - `GET /api/employees?sort=surname,asc&size=500`
+  - `GET /api/projects?sort=name,asc&size=500`
+  - `GET /api/skills?sort=name,asc`
+
+## Struttura Cartelle (Sintesi)
+
+```text
+cAPPlanReactNative/
+|- App.tsx
+|- index.ts
+|- package.json
+|- assets/
+|- components/
+|- constants/
+|- context/
+|- screens/
+|  |- AllocationPlanning/
+|- services/
+|- store/
+|  |- slices/
+|- utils/
+|- documentation/
 ```
 
----
+## Troubleshooting Rapido
 
-## 🛠️ Tecnologie Utilizzate
-
-| Tecnologia               | Versione | Scopo                    |
-| ------------------------ | -------- | ------------------------ |
-| **React Native**         | 0.81.5   | Framework per app mobile |
-| **Expo**                 | ~54.0.33 | Piattaforma di sviluppo  |
-| **React**                | 19.1.0   | Libreria UI              |
-| **TypeScript**           | ~5.9.2   | Type safety              |
-| **React Navigation**     | ^7.1.28  | Navigazione tra schermi  |
-| **Axios**                | ^1.13.5  | Client HTTP              |
-| **expo-secure-store**    | ~15.0.8  | Storage crittografato    |
-| **expo-linear-gradient** | ~15.0.8  | Sfondi gradient          |
-
----
-
-## 🔧 Configurazione Base
-
-### API Backend
-
-L'app comunica con un backend su:
-
-- **URL**:
-- **Endpoint Login**: POST `/api/authenticate`
-- **Endpoint Account**: GET `/api/account`
-
-### Safe Area
-
-L'app utilizza `react-native-safe-area-context` per gestire notch, barre di stato e altri elementi non-sicuri del layout.
-
-### Keyboard Handling
-
-- Utilizza `KeyboardAwareScrollView` per gestire automaticamente lo scroll quando la tastiera appare
-- `KeyboardAvoidingView` per iOS specialmente
-
----
-
-## 📝 Suggerimenti di Sviluppo
-
-1. **Per aggiungere una nuova schermata:**
-   - Creare un nuovo file in `screens/`
-   - Aggiungere la rotta in `App.tsx` nella `Stack.Navigator`
-   - Navigare usando `navigation.navigate("NomeSchermata")`
-
-2. **Per aggiungere componenti riutilizzabili:**
-   - Creare il file in `components/`
-   - Importarlo negli schermi dove serve
-   - Mantenere i componenti il più "dumb" possibile
-
-3. **Per aggiungere costanti:**
-   - Aggiungerle in `constants/colors.tsx` o `constants/typography.tsx`
-   - Importare e usare in tutta l'app
-
-4. **Per aggiungere servizi API:**
-   - Aggiungere funzioni in `services/authService.ts` o creare un nuovo service file
-   - Utilizzare l'istanza `api` di Axios per consistenza
-
----
-
-## 🐛 Troubleshooting
-
-### App non si avvia
+### L'app non parte o build instabile
 
 ```bash
-# Pulire cache
+# Da root progetto
 rm -rf node_modules
 npm install
-
-# Pulire cache Expo
 npm start -- --clear
 ```
 
-### Token non persiste
+Su Windows PowerShell:
 
-Verificare che:
+```powershell
+Remove-Item -Recurse -Force node_modules
+npm install
+npm start -- --clear
+```
 
-- `expo-secure-store` sia installato: `npm install expo-secure-store`
-- Il plugin sia abilitato in `app.json`
+### API non raggiungibile su Android emulator
 
-### Problemi di connessione API
+Verifica che:
 
-Verificare:
+1. Il backend sia in ascolto su porta 9074
+2. L'URL resti `http://10.0.2.2:9074` (non localhost)
+3. Firewall/antivirus non blocchino la porta
 
-- Backend è in esecuzione su
-- IP è raggiungibile dalla rete locale
-- Dispositivo test è sulla stessa rete del backend
+### Login fallisce
 
----
+Controllare:
 
-## 📞 Supporto
+1. Credenziali corrette
+2. Endpoint `/api/authenticate` attivo
+3. Endpoint `/api/account` accessibile con token
 
-Per domande o problemi, consultare:
+## Note di Evoluzione
 
-- [Documentazione Expo](https://docs.expo.dev/)
-- [React Native Docs](https://reactnative.dev/)
-- [React Navigation](https://reactnavigation.org/)
+- Coesistono Auth Context e auth slice Redux (migrazione graduale).
+- Le schermate allocation sono integrate nel Drawer via stack dedicato.
+- Il date picker e' stato introdotto per standardizzare inserimento date nei form allocation.
