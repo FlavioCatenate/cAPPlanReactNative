@@ -17,7 +17,8 @@ Applicazione mobile per Capacity Planning con autenticazione, navigazione a draw
 ## Prerequisiti
 
 1. Node.js 18+ (consigliato LTS)
-2. npm
+2. Corepack abilitato (`corepack enable pnpm`)
+3. pnpm
 3. Android Studio (Android SDK + emulator)
 4. Xcode (solo macOS, per iOS)
 5. Expo CLI opzionale (puoi usare anche npx expo)
@@ -27,19 +28,25 @@ Applicazione mobile per Capacity Planning con autenticazione, navigazione a draw
 ### 1) Installazione dipendenze
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2) Avvio Metro / Expo
 
 ```bash
-npm start
+pnpm dev
+```
+
+Alternativa equivalente:
+
+```bash
+pnpm start
 ```
 
 ### 3) Build nativa Android
 
 ```bash
-npm run android
+pnpm android
 ```
 
 Equivalente:
@@ -51,17 +58,30 @@ npx expo run:android
 ### 4) Build nativa iOS (solo macOS)
 
 ```bash
-npm run ios
+pnpm ios
 ```
 
 ## Scripts Disponibili
 
 Da package.json:
 
-- `npm start` -> `expo start`
-- `npm run android` -> `expo run:android`
-- `npm run ios` -> `expo run:ios`
-- `npm run web` -> `expo start --web`
+- `pnpm dev` -> `expo start`
+- `pnpm start` -> `expo start`
+- `pnpm android` -> `expo run:android`
+- `pnpm ios` -> `expo run:ios`
+- `pnpm web` -> `expo start --web`
+
+## Uso con pnpm
+
+Il progetto usa `pnpm` come package manager standard.
+
+Se `pnpm` non e' ancora disponibile nel terminale:
+
+```bash
+corepack enable pnpm
+```
+
+Su Windows PowerShell, se hai appena abilitato Corepack, puo' essere necessario chiudere e riaprire il terminale prima di eseguire `pnpm`.
 
 ## Architettura Applicazione
 
@@ -187,16 +207,16 @@ cAPPlanReactNative/
 ```bash
 # Da root progetto
 rm -rf node_modules
-npm install
-npm start -- --clear
+pnpm install
+pnpm start -- --clear
 ```
 
 Su Windows PowerShell:
 
 ```powershell
 Remove-Item -Recurse -Force node_modules
-npm install
-npm start -- --clear
+pnpm install
+pnpm start -- --clear
 ```
 
 ### API non raggiungibile su Android emulator
