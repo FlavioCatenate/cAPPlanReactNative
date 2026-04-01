@@ -5,14 +5,16 @@ const PAGE_SIZE = 10;
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   fetchAllocations,
-  selectAllocationsWithUi,
+  selectAllocationsWithUiAndFilters,
   selectAllocationsStatus,
   selectAllocationsError,
   deleteAllocationThunk as deleteAllocationAction,
   type Allocation,
   type AllocationListItem,
 } from '../../store/slices/allocationSlice';
+import { selectActiveFilterCount } from '../../store/slices/filterSlice';
 import AllocationCard from '../../components/AllocationCard';
+import FilterModal from '../../components/FilterModal';
 import Colors from '../../constants/colors';
 
 const ItemSeparator = memo(function ItemSeparator() {
@@ -106,12 +108,14 @@ const AllocationList = memo(function AllocationList({
 
 export default memo(function AllocationPlanningScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
-  const allItems = useAppSelector(selectAllocationsWithUi);
+  const allItems = useAppSelector(selectAllocationsWithUiAndFilters);
   const status = useAppSelector(selectAllocationsStatus);
   const error = useAppSelector(selectAllocationsError);
+  const activeFilterCount = useAppSelector(selectActiveFilterCount);
 
   const [selectedAllocation, setSelectedAllocation] = useState<Allocation | null>(null);
   const [optionsModalVisible, setOptionsModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -222,6 +226,17 @@ export default memo(function AllocationPlanningScreen({ navigation }: any) {
 
   return (
     <View style={styles.container}>
+      {/* ACTION BAR */}
+      <View style={styles.filterBar}>
+        {/* FAB + */}
+      <Pressable
+        style={styles.filterButton}
+        onPress={handlePressAddAllocation}
+        android_ripple={{ color: 'rgba(255,255,255,0.2)' }}
+      >
+        <Text style={styles.fabText}>+</Text>
+      </Pressable>
+      </View>
 
       <AllocationList
         items={items}
@@ -233,12 +248,16 @@ export default memo(function AllocationPlanningScreen({ navigation }: any) {
 
       {/* FAB + */}
       <Pressable
-        style={styles.fab}
-        onPress={handlePressAddAllocation}
-        android_ripple={{ color: 'rgba(255,255,255,0.2)' }}
-      >
-        <Text style={styles.fabText}>+</Text>
-      </Pressable>
+          style={styles.fab}
+          onPress={() => setFilterModalVisible(true)}
+        >
+          <Text style={styles.filterButtonText}>🏷️</Text>
+          {activeFilterCount > 0 && (
+            <View style={styles.filterBadge}>
+              <Text style={styles.filterBadgeText}>{activeFilterCount}</Text>
+            </View>
+          )}
+        </Pressable>
 
       {/* Modal edit/delete */}
       <Modal
@@ -280,6 +299,12 @@ export default memo(function AllocationPlanningScreen({ navigation }: any) {
         </Pressable>
       </Modal>
 
+      {/* FILTER MODAL */}
+      <FilterModal
+        visible={filterModalVisible}
+        onClose={() => setFilterModalVisible(false)}
+      />
+
     </View>
   );
 });
@@ -290,6 +315,46 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.backgroundColor,
     paddingHorizontal: 20,
     paddingTop: 20,
+  },
+  filterBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  filterButton: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.surfaceColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  filterButtonText: {
+    fontSize: 20,
+    color: Colors.mainTextColor,
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: Colors.errorColor,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  filterBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#fff',
   },
   listContent: {
     paddingBottom: 100,
@@ -350,14 +415,14 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.lightGray, 
+    backgroundColor: Colors.surfaceColor, 
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8, 
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   fabText: {
     fontSize: 28,

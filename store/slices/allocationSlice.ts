@@ -7,6 +7,12 @@ import {
   deleteAllocation,
 } from '../../services/allocationService';
 import { getAllocationStatus, getStatusColor } from '../../utils/allocationColors';
+import { selectEmployeeTeamMap } from './employeeTeamSlice';
+import {
+  selectSelectedEmployees,
+  selectSelectedStatuses,
+  selectSelectedTeams,
+} from './filterSlice';
 import type { RootState } from '../index';
 
 export interface Employee {
@@ -183,6 +189,74 @@ export const selectAllocationsWithUi = createSelector(
         cardColor: getStatusColor(status),
         projectName: item.project?.name || `Project #${item.project?.id ?? item.id}`,
       };
+    });
+  }
+);
+
+/**
+ * Selector composito che applica i filtri (team + status + employee)
+ * Filtra selectAllocationsWithUi in base a:
+ * - selectedTeams: lista di nomi team selezionati
+ * - selectedStatuses: lista di colori stato selezionati
+ * - selectedEmployees: lista di employee ID selezionati
+ *
+ * Logica:
+ * 1. Se selectedTeams non è vuoto, include solo allocazioni di employee che appartengono a un team selezionato
+ * 2. Se selectedStatuses non è vuoto, include solo allocazioni il cui cardColor è in selectedStatuses
+ * 3. Se selectedEmployees non è vuoto, include solo allocazioni degli employee selezionati
+ * 4. Se no filtri, include tutte le allocazioni
+ */
+export const selectAllocationsWithUiAndFilters = createSelector(
+  [
+    selectAllocationsWithUi,
+    selectEmployeeTeamMap,
+    selectSelectedTeams,
+    selectSelectedStatuses,
+    selectSelectedEmployees,
+  ],
+  (items, employeeTeamMap, selectedTeams, selectedStatuses, selectedEmployees): AllocationListItem[] => {
+    // Se no filtri attivi, ritorna tutto
+    if (
+      selectedTeams.length === 0 &&
+      selectedStatuses.length === 0 &&
+      selectedEmployees.length === 0
+    ) {
+      return items;
+    }
+
+    return items.filter((item) => {
+      // --- TEAM FILTER ---
+      if (selectedTeams.length > 0) {
+        const employeeTeams = employeeTeamMap.get(item.employee.id) || [];
+        const employeeTeamNames = employeeTeams.map((t) => t.name);
+        const hasSelectedTeam = employeeTeamNames.some((tn) =>
+          selectedTeams.includes(tn)
+        );
+
+        if (!hasSelectedTeam) {
+          return false; // Employee non è in nessun team selezionato
+        }
+      }
+
+      // --- STATUS FILTER ---
+      if (selectedStatuses.length > 0) {
+        const hasSelectedStatus = selectedStatuses.includes(item.cardColor);
+
+        if (!hasSelectedStatus) {
+          return false; // Allocation status non è selezionato
+        }
+      }
+
+      // --- EMPLOYEE FILTER ---
+      if (selectedEmployees.length > 0) {
+        const employeeId = item.employee?.id;
+
+        if (employeeId == null || !selectedEmployees.includes(employeeId)) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }
 );

@@ -38,23 +38,23 @@ export default function AllocationDetailScreen({ route, navigation }: any) {
 
         <View style={styles.lowerCard}>
           <Text style={styles.label}>Project</Text>
-          <Text style={styles.value}>{allocation.project?.name ?? "N/A"}</Text>
+          <Text style={styles.fieldValue}>{allocation.project?.name ?? "N/A"}</Text>
 
           <Text style={styles.label}>Period</Text>
-          <Text style={styles.value}>
+          <Text style={styles.fieldValue}>
             {allocation.fromDate} - {allocation.toDate}
           </Text>
 
           <Text style={styles.label}>Percentage</Text>
-          <Text style={styles.value}>{allocation.percentage}%</Text>
+          <Text style={styles.fieldValue}>{allocation.percentage}%</Text>
 
           <Text style={styles.label}>Sales Rate</Text>
-          <Text style={styles.value}>
+          <Text style={styles.fieldValue}>
             {allocation.salesRate ? `${allocation.salesRate} €/h` : "N/A"}
           </Text>
 
           <Text style={styles.label}>Fixed Price</Text>
-          <Text style={[styles.value, { marginBottom: 10 }]}>
+          <Text style={[styles.fieldValue, { marginBottom: 10 }]}>
             {allocation.isFixedPrice ? "Yes" : "No"}
           </Text>
         </View>
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     marginTop: 6,
   },
-  value: {
+  fieldValue: {
     color: Colors.mainTextColor,
     fontWeight: "600",
     fontSize: 15,

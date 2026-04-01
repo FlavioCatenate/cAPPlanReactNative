@@ -4,6 +4,8 @@ import allocationReducer from './slices/allocationSlice';
 import employeeReducer from './slices/employeeSlice';
 import projectReducer from './slices/projectSlice';
 import skillReducer from './slices/skillSlice';
+import employeeTeamReducer from './slices/employeeTeamSlice';
+import filterReducer from './slices/filterSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     employees: employeeReducer,
     projects: projectReducer,
     skills: skillReducer,
+    employeeTeams: employeeTeamReducer,
+    filters: filterReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -23,6 +27,7 @@ export const store = configureStore({
           'employees.items',
           'projects.items',
           'skills.items',
+          'employeeTeams.items',
         ],
         ignoredActionPaths: ['payload', 'meta.arg'],
       },
