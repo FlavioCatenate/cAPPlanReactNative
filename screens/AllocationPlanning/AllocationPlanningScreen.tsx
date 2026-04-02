@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet, FlatList, Pressable, Modal, ActivityIndicator, Alert, Platform } from 'react-native';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
 
 const PAGE_SIZE = 10;
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
@@ -118,6 +119,28 @@ export default memo(function AllocationPlanningScreen({ navigation }: any) {
   const [filterModalVisible, setFilterModalVisible] = useState(false);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // Icona calendario in header
+useLayoutEffect(() => {
+navigation.setOptions({
+headerRight: () => (
+<Pressable
+onPress={() => {
+const routeNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+if (routeNames.includes('Calendar')) {
+navigation.navigate('Calendar');
+} else {
+navigation.navigate('AllocationStack', { screen: 'Calendar' });
+}
+}}
+style={styles.headerCalendarBtn}
+android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
+>
+<Ionicons name="calendar-outline" size={22} color={Colors.mainTextColor} />
+</Pressable>
+),
+});
+}, [navigation]);
 
   const items = useMemo(() => allItems.slice(0, visibleCount), [allItems, visibleCount]);
   const hasMore = visibleCount < allItems.length;
@@ -471,5 +494,8 @@ const styles = StyleSheet.create({
   },
   modalDeleteText: {
     color: Colors.errorColor,
+  },
+  headerCalendarBtn: {
+    paddingRight: 16,
   },
 });

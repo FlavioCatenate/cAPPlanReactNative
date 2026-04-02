@@ -34,12 +34,6 @@ export default function HomeScreen({ navigation }: any) {
         <HomeButton onPress={handleLogout} type="danger">
           Logout
         </HomeButton>
-        <HomeButton
-          onPress={() => navigation.navigate("EditProfile")}
-          type="secondary"
-        >
-          Edit
-        </HomeButton>
       </View>
     </View>
   );

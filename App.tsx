@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import LoginScreen from "./screens/LoginScreen";
 import HomeScreen from "./screens/HomeScreen";
-import EditProfileScreen from "./screens/EditProfileScreen";
 import SplashScreen from "./screens/SplashScreen";
 import AllocationPlanningScreen from "./screens/AllocationPlanning/AllocationPlanningScreen";
 import AllocationDetailScreen from "./screens/AllocationPlanning/AllocationDetailScreen";
@@ -16,6 +15,9 @@ import Colors from "./constants/colors";
 import { store } from "./store";
 import AddAllocationScreen from "./screens/AllocationPlanning/addAllocationScreen";
 import EditAllocationScreen from "./screens/AllocationPlanning/editAllocationScreen";
+import CalendarScreen from "./screens/Calendar/Calendarscreen";
+import EmployeeMonthScreen from "./screens/Calendar/EmployeeMonthScreen";
+import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
 const AllocationStack = createNativeStackNavigator();
@@ -48,16 +50,6 @@ function DrawerContent({ navigation }: any) {
           }}
         >
           <Text style={styles.drawerItemText}>Home</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.drawerItem}
-          onPress={() => {
-            navigation.navigate("EditProfile");
-            navigation.closeDrawer();
-          }}
-        >
-          <Text style={styles.drawerItemText}>Edit Profile</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -116,6 +108,22 @@ function AllocationStackNavigator() {
           headerShown: false,
         }}
       />
+      <AllocationStack.Screen
+        name="EmployeeMonth"
+        component={EmployeeMonthScreen}
+        options={{
+          headerShown: false,
+          headerTitle: "Calendario Mensile",
+          headerBackTitle: "Indietro",
+        }}
+      />
+      <AllocationStack.Screen
+        name="Calendar"
+        component={CalendarScreen}
+        options={({ route }: any) => ({
+          title: route.params?.employeeName ?? "Dettaglio",
+        })}
+      />
     </AllocationStack.Navigator>
   );
 }
@@ -136,6 +144,11 @@ function AppNavigator() {
             <Text style={{ fontSize: 24 }}>☰</Text>
           </TouchableOpacity>
         ),
+        headerRight: () => (
+          <TouchableOpacity onPress={() => navigation.navigate("Calendar")}>
+            <Ionicons name="calendar" size={24} style={{ marginRight: 15 }} color="black" />
+          </TouchableOpacity>
+        ),
       })}
       drawerContent={(props) => <DrawerContent {...props} />}
     >
@@ -147,18 +160,19 @@ function AppNavigator() {
         }}
       />
       <Drawer.Screen
-        name="EditProfile"
-        component={EditProfileScreen}
+        name="AllocationStack"
+        component={AllocationStackNavigator}
         options={{
-          headerTitle: "Edit Profile",
+          headerTitle: "Allocation Planning",
+          drawerLabel: "Allocation Planning",
         }}
       />
       <Drawer.Screen
-        name="AllocationStack" 
-        component={AllocationStackNavigator} 
+        name="Calendar"
+        component={CalendarScreen}
         options={{
-          headerTitle: "Allocation Planning",
-          drawerLabel: "Allocation Planning", 
+          headerTitle: "Calendar",
+          drawerLabel: "Calendar",
         }}
       />
     </Drawer.Navigator>

@@ -116,19 +116,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingBottom: 20,
-    paddingTop: 12,
+    paddingTop: 15,
     alignItems: "center",
     gap: 12,
   },
   lowerLeft: {
     flex: 1,
-    paddingLeft: 12,
+    paddingLeft: 15,
+    alignItems: "center",
   },
   lowerRight: {
     flex: 1,
     paddingLeft: 20,
-    alignItems: "flex-end",
-    paddingRight: 12,
+    alignItems: "center",
     textAlign: "right",
   },
   title: {
