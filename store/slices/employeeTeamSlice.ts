@@ -10,12 +10,14 @@ interface EmployeeTeamState {
   items: EmployeeTeam[];
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
+  hasBeenFetched: boolean;
 }
 
 const initialState: EmployeeTeamState = {
   items: [],
   status: 'idle',
   error: null,
+  hasBeenFetched: false,
 };
 
 /**
@@ -49,6 +51,7 @@ const employeeTeamSlice = createSlice({
       .addCase(fetchEmployeeTeams.fulfilled, (state, action) => {
         state.status = 'idle';
         state.items = action.payload;
+        state.hasBeenFetched = true;
       })
       .addCase(fetchEmployeeTeams.rejected, (state, action) => {
         state.status = 'failed';
@@ -70,6 +73,9 @@ export const selectEmployeeTeamStatus = (state: RootState) =>
 export const selectEmployeeTeamError = (state: RootState) =>
   state.employeeTeams.error;
 
+export const selectEmployeeTeamHasBeenFetched = (state: RootState) =>
+  state.employeeTeams.hasBeenFetched;
+
 /**
  * Memoized map: employeeId → [Team, Team, ...]
  * Usato per lookup veloce dei team di un employee
@@ -87,6 +93,27 @@ export const selectEmployeeTeamMap = createSelector(
       map.get(empId)!.push(et.team);
     });
 
+    return map;
+  }
+);
+
+/**
+ * Memoized map: employeeId → { isLeader, isTutor }
+ * Aggrega i flag di ruolo da tutte le relazioni employee-team
+ * (un employee può essere leader in un team e tutor in un altro)
+ */
+export const selectEmployeeRoleMap = createSelector(
+  [selectEmployeeTeamItems],
+  (items): Map<number, { isLeader: boolean; isTutor: boolean }> => {
+    const map = new Map<number, { isLeader: boolean; isTutor: boolean }>();
+    items.forEach((et) => {
+      const empId = et.employee.id;
+      const existing = map.get(empId);
+      map.set(empId, {
+        isLeader: (existing?.isLeader ?? false) || et.isLeader,
+        isTutor: (existing?.isTutor ?? false) || et.isTutor,
+      });
+    });
     return map;
   }
 );

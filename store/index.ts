@@ -5,6 +5,7 @@ import employeeReducer from './slices/employeeSlice';
 import projectReducer from './slices/projectSlice';
 import skillReducer from './slices/skillSlice';
 import employeeTeamReducer from './slices/employeeTeamSlice';
+import employeeSkillReducer from './slices/employeeSkillSlice';
 import filterReducer from './slices/filterSlice';
 
 export const store = configureStore({
@@ -15,6 +16,7 @@ export const store = configureStore({
     projects: projectReducer,
     skills: skillReducer,
     employeeTeams: employeeTeamReducer,
+    employeeSkills: employeeSkillReducer,
     filters: filterReducer,
   },
   middleware: (getDefaultMiddleware) =>
@@ -28,6 +30,7 @@ export const store = configureStore({
           'projects.items',
           'skills.items',
           'employeeTeams.items',
+          'employeeSkills.items',
         ],
         ignoredActionPaths: ['payload', 'meta.arg'],
       },

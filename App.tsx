@@ -15,12 +15,22 @@ import Colors from "./constants/colors";
 import { store } from "./store";
 import AddAllocationScreen from "./screens/AllocationPlanning/addAllocationScreen";
 import EditAllocationScreen from "./screens/AllocationPlanning/editAllocationScreen";
+import EmployeeListScreen from "./screens/Employees/EmployeeListScreen";
+import EmployeeDetailScreen from "./screens/Employees/EmployeeDetailScreen";
+import AddEmployeeScreen from "./screens/Employees/addEmployeeScreen";
+import EditEmployeeScreen from "./screens/Employees/editEmployeeScreen";
+import SkillListScreen from "./screens/Skills/SkillListScreen";
+import SkillDetailScreen from "./screens/Skills/SkillDetailScreen";
+import AddSkillScreen from "./screens/Skills/addSkillScreen";
+import EditSkillScreen from "./screens/Skills/editSkillScreen";
 import CalendarScreen from "./screens/Calendar/Calendarscreen";
 import EmployeeMonthScreen from "./screens/Calendar/EmployeeMonthScreen";
 import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createNativeStackNavigator();
 const AllocationStack = createNativeStackNavigator();
+const EmployeeStack = createNativeStackNavigator();
+const SkillStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function DrawerContent({ navigation }: any) {
@@ -61,6 +71,26 @@ function DrawerContent({ navigation }: any) {
         >
           <Text style={styles.drawerItemText}>Allocation Planning</Text>
         </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.drawerItem}
+            onPress={() => {
+              navigation.navigate("EmployeeStack");
+              navigation.closeDrawer();
+            }}
+          >
+            <Text style={styles.drawerItemText}>Employees</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              navigation.navigate("SkillStack");
+              navigation.closeDrawer();
+            }}
+          >
+            <Text style={styles.drawerItemText}>Skills</Text>
+          </TouchableOpacity>
 
         <View style={styles.drawerDivider} />
 
@@ -112,7 +142,7 @@ function AllocationStackNavigator() {
         name="EmployeeMonth"
         component={EmployeeMonthScreen}
         options={{
-          headerShown: false,
+          headerShown: true,
           headerTitle: "Calendario Mensile",
           headerBackTitle: "Indietro",
         }}
@@ -127,6 +157,61 @@ function AllocationStackNavigator() {
     </AllocationStack.Navigator>
   );
 }
+
+function EmployeeStackNavigator() {
+  return (
+    <EmployeeStack.Navigator>
+      <EmployeeStack.Screen
+        name="EmployeeList"
+        component={EmployeeListScreen}
+        options={{ headerShown: false }}
+      />
+      <EmployeeStack.Screen
+        name="EmployeeDetail"
+        component={EmployeeDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <EmployeeStack.Screen
+        name="AddEmployee"
+        component={AddEmployeeScreen}
+        options={{ headerShown: false }}
+      />
+      <EmployeeStack.Screen
+        name="EditEmployee"
+        component={EditEmployeeScreen}
+        options={{ headerShown: false }}
+      />
+    </EmployeeStack.Navigator>
+  );
+}
+
+function SkillStackNavigator() {
+  return (
+    <SkillStack.Navigator>
+      <SkillStack.Screen
+        name="SkillList"
+        component={SkillListScreen}
+        options={{ headerShown: false }}
+      />
+      <SkillStack.Screen
+        name="SkillDetail"
+        component={SkillDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <SkillStack.Screen
+        name="AddSkill"
+        component={AddSkillScreen}
+        options={{ headerShown: false }}
+      />
+      <SkillStack.Screen
+        name="EditSkill"
+        component={EditSkillScreen}
+        options={{ headerShown: false }}
+      />
+    </SkillStack.Navigator>
+  );
+}
+
 
 function AppNavigator() {
   return (
@@ -173,6 +258,22 @@ function AppNavigator() {
         options={{
           headerTitle: "Calendar",
           drawerLabel: "Calendar",
+        }}
+      />
+      <Drawer.Screen
+        name="EmployeeStack"
+        component={EmployeeStackNavigator}
+        options={{
+          headerTitle: "Employees",
+          drawerLabel: "Employees",
+        }}
+      />
+      <Drawer.Screen
+        name="SkillStack"
+        component={SkillStackNavigator}
+        options={{
+          headerTitle: "Skills",
+          drawerLabel: "Skills",
         }}
       />
     </Drawer.Navigator>

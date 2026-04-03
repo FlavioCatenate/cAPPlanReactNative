@@ -42,3 +42,47 @@ export async function getEmployeeTeamsById(
   // Endpoint ritorna singolo object, lo wrappamo in array per consistenza
   return Array.isArray(response.data) ? response.data : [response.data];
 }
+
+/**
+ * Update isLeader/isTutor flags on a single employee-team record
+ * PUT /api/employee-teams/{id}  (JHipster requires full entity body)
+ */
+export async function updateEmployeeTeam(
+  record: EmployeeTeam,
+  isLeader: boolean,
+  isTutor: boolean
+): Promise<EmployeeTeam> {
+  const { data } = await api.put<EmployeeTeam>(`/api/employee-teams/${record.id}`, {
+    ...record,
+    isLeader,
+    isTutor,
+  });
+  return data;
+}
+
+/**
+ * Create a new employee-team relationship
+ * POST /api/employee-teams
+ */
+export async function createEmployeeTeam(
+  employeeId: number,
+  teamId: number,
+  isLeader: boolean,
+  isTutor: boolean
+): Promise<EmployeeTeam> {
+  const { data } = await api.post<EmployeeTeam>('/api/employee-teams', {
+    employee: { id: employeeId },
+    team: { id: teamId },
+    isLeader,
+    isTutor,
+  });
+  return data;
+}
+
+/**
+ * Delete an employee-team relationship
+ * DELETE /api/employee-teams/{id}
+ */
+export async function deleteEmployeeTeam(id: number): Promise<void> {
+  await api.delete(`/api/employee-teams/${id}`);
+}
