@@ -23,6 +23,10 @@ import SkillListScreen from "./screens/Skills/SkillListScreen";
 import SkillDetailScreen from "./screens/Skills/SkillDetailScreen";
 import AddSkillScreen from "./screens/Skills/addSkillScreen";
 import EditSkillScreen from "./screens/Skills/editSkillScreen";
+import ProjectListScreen from "./screens/Projects/ProjectListScreen";
+import ProjectDetailScreen from "./screens/Projects/ProjectDetailScreen";
+import AddProjectScreen from "./screens/Projects/addProjectScreen";
+import EditProjectScreen from "./screens/Projects/editProjectScreen";
 import CalendarScreen from "./screens/Calendar/Calendarscreen";
 import EmployeeMonthScreen from "./screens/Calendar/EmployeeMonthScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -31,6 +35,7 @@ const Stack = createNativeStackNavigator();
 const AllocationStack = createNativeStackNavigator();
 const EmployeeStack = createNativeStackNavigator();
 const SkillStack = createNativeStackNavigator();
+const ProjectStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function DrawerContent({ navigation }: any) {
@@ -90,6 +95,16 @@ function DrawerContent({ navigation }: any) {
             }}
           >
             <Text style={styles.drawerItemText}>Skills</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.drawerItem}
+            onPress={() => {
+              navigation.navigate("ProjectStack");
+              navigation.closeDrawer();
+            }}
+          >
+            <Text style={styles.drawerItemText}>Projects</Text>
           </TouchableOpacity>
 
         <View style={styles.drawerDivider} />
@@ -196,6 +211,33 @@ function SkillStackNavigator() {
   );
 }
 
+function ProjectStackNavigator() {
+  return (
+    <ProjectStack.Navigator>
+      <ProjectStack.Screen
+        name="ProjectList"
+        component={ProjectListScreen}
+        options={{ headerShown: false }}
+      />
+      <ProjectStack.Screen
+        name="ProjectDetail"
+        component={ProjectDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <ProjectStack.Screen
+        name="AddProject"
+        component={AddProjectScreen}
+        options={{ headerShown: false }}
+      />
+      <ProjectStack.Screen
+        name="EditProject"
+        component={EditProjectScreen}
+        options={{ headerShown: false }}
+      />
+    </ProjectStack.Navigator>
+  );
+}
+
 
 function AppNavigator() {
   return (
@@ -250,6 +292,14 @@ function AppNavigator() {
         options={{
           headerTitle: "Skills",
           drawerLabel: "Skills",
+        }}
+      />
+      <Drawer.Screen
+        name="ProjectStack"
+        component={ProjectStackNavigator}
+        options={{
+          headerTitle: "Projects",
+          drawerLabel: "Projects",
         }}
       />
     </Drawer.Navigator>
