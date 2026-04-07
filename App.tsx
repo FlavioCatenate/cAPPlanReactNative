@@ -138,22 +138,6 @@ function AllocationStackNavigator() {
           headerShown: false,
         }}
       />
-      <AllocationStack.Screen
-        name="EmployeeMonth"
-        component={EmployeeMonthScreen}
-        options={{
-          headerShown: true,
-          headerTitle: "Calendario Mensile",
-          headerBackTitle: "Indietro",
-        }}
-      />
-      <AllocationStack.Screen
-        name="Calendar"
-        component={CalendarScreen}
-        options={({ route }: any) => ({
-          title: route.params?.employeeName ?? "Dettaglio",
-        })}
-      />
     </AllocationStack.Navigator>
   );
 }
@@ -230,7 +214,7 @@ function AppNavigator() {
           </TouchableOpacity>
         ),
         headerRight: () => (
-          <TouchableOpacity onPress={() => navigation.navigate("Calendar")}>
+          <TouchableOpacity onPress={() => navigation.getParent()?.navigate("Calendar")}>
             <Ionicons name="calendar" size={24} style={{ marginRight: 15 }} color="black" />
           </TouchableOpacity>
         ),
@@ -250,14 +234,6 @@ function AppNavigator() {
         options={{
           headerTitle: "Allocation Planning",
           drawerLabel: "Allocation Planning",
-        }}
-      />
-      <Drawer.Screen
-        name="Calendar"
-        component={CalendarScreen}
-        options={{
-          headerTitle: "Calendar",
-          drawerLabel: "Calendar",
         }}
       />
       <Drawer.Screen
@@ -296,11 +272,29 @@ function RootNavigator() {
           options={{ headerShown: false }}
         />
       ) : (
-        <Stack.Screen
-          name="MainApp"
-          component={AppNavigator}
-          options={{ headerShown: false }}
-        />
+        <>
+          <Stack.Screen
+            name="MainApp"
+            component={AppNavigator}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Calendar"
+            component={CalendarScreen}
+            options={{
+              headerTitle: "Calendario",
+              headerBackTitle: "Indietro",
+            }}
+          />
+          <Stack.Screen
+            name="EmployeeMonth"
+            component={EmployeeMonthScreen}
+            options={{
+              headerTitle: "Calendario Mensile",
+              headerBackTitle: "Indietro",
+            }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

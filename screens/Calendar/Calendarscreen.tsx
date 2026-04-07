@@ -173,23 +173,11 @@ export default function CalendarScreen({ navigation }: any) {
 
   const handleEmployeePress = useCallback(
     (emp: EmployeeRow) => {
-      const params = {
+      navigation.navigate('EmployeeMonth', {
         employeeId: emp.id,
         employeeName: emp.fullName,
         year,
         month,
-      };
-
-      const currentRouteNames: string[] = navigation?.getState?.()?.routeNames ?? [];
-
-      if (currentRouteNames.includes('EmployeeMonth')) {
-        navigation.navigate('EmployeeMonth', params);
-        return;
-      }
-
-      navigation.navigate('AllocationStack', {
-        screen: 'EmployeeMonth',
-        params,
       });
     },
     [navigation, year, month],
