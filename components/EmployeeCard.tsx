@@ -30,11 +30,7 @@ const EmployeeCard = memo(function EmployeeCard({
 }: EmployeeCardProps) {
   return (
     <View style={styles.card}>
-      <Pressable
-        style={[styles.header, { backgroundColor: roleColor }]}
-        onPress={onPressOptions}
-        android_ripple={{ color: 'rgba(0,0,0,0.1)' }}
-      >
+      <View style={[styles.header, { backgroundColor: roleColor }]}>
         <Text style={styles.headerName} numberOfLines={1}>
           {fullName}
         </Text>
@@ -46,10 +42,15 @@ const EmployeeCard = memo(function EmployeeCard({
               </Text>
             </View>
           )}
-          
-          <Text style={styles.optionsHint}>···</Text>
+          <Pressable
+            onPress={onPressOptions}
+            android_ripple={{ color: 'rgba(0,0,0,0.1)', borderless: true }}
+            hitSlop={8}
+          >
+            <Text style={styles.optionsHint}>···</Text>
+          </Pressable>
         </View>
-      </Pressable>
+      </View>
 
       {/* ── Body: tap → schermata dettaglio ── */}
       <Pressable
