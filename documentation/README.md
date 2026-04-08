@@ -116,8 +116,6 @@ In `App.tsx` l'app e' avvolta da:
   - `AddAllocation`
   - `EditAllocation`
   - `AllocationDetail`
-  - `EmployeeMonth`
-  - `Calendar`
 - `EmployeeStack` include:
   - `EmployeeList`
   - `EmployeeDetail`
@@ -128,6 +126,14 @@ In `App.tsx` l'app e' avvolta da:
   - `SkillDetail`
   - `AddSkill`
   - `EditSkill`
+- `ProjectStack` include:
+  - `ProjectList`
+  - `ProjectDetail`
+  - `AddProject`
+  - `EditProject`
+- `CalendarStack` (navigator separato):
+  - `Calendar`
+  - `EmployeeMonth`
 
 L'header del Drawer include un pulsante calendario (Ionicons) che naviga direttamente a `Calendar`.
 
@@ -208,10 +214,28 @@ La gestione skill e' basata su Redux Toolkit:
 - `AddSkillScreen` — form creazione skill
 - `EditSkillScreen` — modifica skill
 
+## Modulo Projects
+
+La gestione progetti e' basata su Redux Toolkit:
+
+- Slice: `projects`
+- Thunk principali:
+  - `fetchProjects`
+  - `createProjectThunk`
+  - `updateProjectThunk`
+  - `deleteProjectThunk`
+
+### Schermate
+
+- `ProjectListScreen` — lista con paginazione client (10/pagina), filtro per stato attivo/inattivo e date
+- `ProjectDetailScreen` — dettaglio progetto (nome, descrizione, date, tipo, stato attivo)
+- `AddProjectScreen` — form creazione progetto con date, descrizione e stato
+- `EditProjectScreen` — modifica dati progetto
+
 ## Modulo Calendar
 
-- `CalendarScreen` — vista calendario allocazioni per tutti gli employee
-- `EmployeeMonthScreen` — vista mensile allocazioni di un singolo dipendente
+- `CalendarScreen` — vista mensile allocazioni per tutti gli employee con status visivo per settimana
+- `EmployeeMonthScreen` — vista giornaliera allocazioni di un singolo dipendente
 
 ## Componenti Condivisi
 
@@ -220,10 +244,12 @@ La gestione skill e' basata su Redux Toolkit:
 | `AllocationCard` | Card riassuntiva di una allocation |
 | `DatePickerInput` | Input data con modal `react-native-date-picker`, normalizza su `YYYY-MM-DD` |
 | `EmployeeCard` | Card riassuntiva di un dipendente |
-| `EmployeeFilterModal` | Modal filtro dipendenti |
+| `EmployeeFilterModal` | Modal filtro dipendenti per ruolo (leader/tutor) e team |
 | `FilterChips` | Chips per filtri attivi |
-| `FilterModal` | Modal filtro generico |
-| `HomeButton` | Pulsante navigazione home |
+| `FilterModal` | Modal filtro allocazioni per team, stato e dipendente |
+| `HomeButton` | Pulsante con varianti di stile (default, danger) |
+| `ProjectCard` | Card riassuntiva di un progetto con stato attivo e date |
+| `ProjectFilterModal` | Modal filtro progetti per stato attivo/inattivo |
 | `SkillBadge` | Badge visivo per una skill |
 
 ## Redux Store
@@ -235,7 +261,7 @@ Slice configurati in `store/index.ts`:
 | `auth` | Stato autenticazione e profilo utente |
 | `allocations` | Lista e stato CRUD allocation |
 | `employees` | Lista e stato CRUD dipendenti |
-| `projects` | Lista progetti (lookup) |
+| `projects` | Lista e stato CRUD progetti |
 | `skills` | Lista e stato CRUD skill |
 | `employeeTeams` | Associazioni dipendente-team |
 | `employeeSkills` | Associazioni dipendente-skill |
@@ -278,6 +304,9 @@ Endpoint attualmente usati:
   - `PUT /api/employee-teams/{id}`
 - **Projects** (`services/projectService.ts`)
   - `GET /api/projects?sort=name,asc&size=500`
+  - `POST /api/projects`
+  - `PUT /api/projects/{id}`
+  - `DELETE /api/projects/{id}`
 
 ## Struttura Cartelle
 
@@ -296,11 +325,14 @@ cAPPlanReactNative/
 |  |- FilterChips.tsx
 |  |- FilterModal.tsx
 |  |- HomeButton.tsx
+|  |- ProjectCard.tsx
+|  |- ProjectFilterModal.tsx
 |  |- SkillBadge.tsx
 |- constants/
 |  |- colors.tsx
 |  |- formStyles.tsx
 |  |- typography.tsx
+|  |- user.tsx
 |- context/
 |  |- AuthContext.tsx
 |- screens/
@@ -311,6 +343,7 @@ cAPPlanReactNative/
 |  |- AllocationPlanning/
 |  |- Calendar/
 |  |- Employees/
+|  |- Projects/
 |  |- Skills/
 |- services/
 |  |- api.ts
@@ -329,6 +362,7 @@ cAPPlanReactNative/
 |  |- allocationColors.ts
 |  |- calendarUtils.ts
 |  |- employeeColors.ts
+|  |- projectColors.ts
 |- documentation/
 ```
 
@@ -369,7 +403,7 @@ Controllare:
 
 ## Note di Evoluzione
 
-- Coesistono Auth Context e auth slice Redux (migrazione graduale).
-- I moduli Employees e Skills seguono lo stesso pattern Redux del modulo Allocation.
+- I moduli Employees, Skills e Projects seguono lo stesso pattern Redux del modulo Allocation.
 - Il slice `filters` gestisce lo stato dei filtri UI in modo centralizzato.
 - Il date picker e' condiviso tra i form allocation tramite il componente `DatePickerInput`.
+- I filtri per Employees e Projects usano modal dedicati (`EmployeeFilterModal`, `ProjectFilterModal`) analoghi a `FilterModal`.
