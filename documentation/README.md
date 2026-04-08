@@ -96,9 +96,8 @@ Su Windows PowerShell, se hai appena abilitato Corepack, puo' essere necessario 
 In `App.tsx` l'app e' avvolta da:
 
 1. Redux `Provider`
-2. `AuthProvider` (context autenticazione)
-3. `SafeAreaProvider`
-4. `NavigationContainer`
+2. `SafeAreaProvider`
+3. `NavigationContainer`
 
 ### Navigazione
 
@@ -141,21 +140,49 @@ L'header del Drawer include un pulsante calendario (Ionicons) che naviga diretta
 
 ### Login
 
-La login usa un thunk Redux (`loginThunk`) che:
+`loginThunk` (RTK async thunk):
 
-1. Chiama `POST /api/authenticate`
-2. Salva `id_token` in Secure Store (`auth_token`)
-3. Recupera il profilo utente con `GET /api/account`
-4. Aggiorna lo stato auth
+1. Chiama `POST /api/authenticate` con username e password
+2. Salva `id_token` in Secure Store sotto la chiave `auth_token`
+3. Chiama `GET /api/account` per recuperare il profilo utente
+4. Aggiorna lo stato Redux con `user`; `status` torna a `idle`
+
+Gestione degli errori:
+
+- HTTP 401 → `rejectWithValue('Credenziali non valide')`
+- Timeout o rete irraggiungibile → `rejectWithValue('Backend non raggiungibile...')`
+- Altri errori → `rejectWithValue('Errore durante il login')`
 
 ### Persistenza sessione
 
-Al bootstrap, `AuthProvider` controlla il token salvato e prova a caricare l'account.
-Se il token non e' valido, viene rimosso automaticamente.
+Al bootstrap, `RootNavigator` dispatcha `initializeAuth` (RTK async thunk):
+
+1. Legge `auth_token` da Secure Store
+2. Se presente, chiama `GET /api/account` per validare il token e caricare l'utente
+3. Se il token e' scaduto o non valido, lo elimina da Secure Store e imposta `user = null`
+4. Al termine (fulfilled o rejected), imposta `isInitializing = false`
+
+Finche' `isInitializing` e' `true`, viene mostrata la `SplashScreen`. Quando diventa `false`, il root navigator mostra `Login` o `MainApp` in base allo stato `isLoggedIn`.
 
 ### Logout
 
-Logout elimina il token da Secure Store e resetta l'utente in memoria.
+`logoutThunk` (RTK async thunk):
+
+1. Elimina `auth_token` da Secure Store
+2. Imposta `user = null` nello stato Redux
+
+### Stato Redux (`authSlice`)
+
+```ts
+interface AuthState {
+  user: User | null;
+  status: 'idle' | 'loading' | 'failed';
+  error: string | null;
+  isInitializing: boolean;
+}
+```
+
+Selectors esportati: `selectUser`, `selectIsLoggedIn`, `selectAuthStatus`, `selectAuthError`, `selectIsInitializing`.
 
 ## Modulo Allocation Planning
 
@@ -333,8 +360,6 @@ cAPPlanReactNative/
 |  |- formStyles.tsx
 |  |- typography.tsx
 |  |- user.tsx
-|- context/
-|  |- AuthContext.tsx
 |- screens/
 |  |- HomeScreen.tsx
 |  |- LoginScreen.tsx
@@ -403,6 +428,7 @@ Controllare:
 
 ## Note di Evoluzione
 
+- L'autenticazione e' gestita interamente da `authSlice` RTK. 
 - I moduli Employees, Skills e Projects seguono lo stesso pattern Redux del modulo Allocation.
 - Il slice `filters` gestisce lo stato dei filtri UI in modo centralizzato.
 - Il date picker e' condiviso tra i form allocation tramite il componente `DatePickerInput`.
