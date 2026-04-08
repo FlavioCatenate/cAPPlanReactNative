@@ -2,9 +2,25 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { login as loginService, loggedAccount } from '../../services/authService';
 import * as SecureStore from 'expo-secure-store';
 import { RootState } from '..';
-import { User } from '../../context/AuthContext';
+import User from '../../constants/user';
 
 // --- Thunks ---
+
+export const initializeAuth = createAsyncThunk(
+  'auth/initialize',
+  async (_) => {
+    try {
+      const token = await SecureStore.getItemAsync('auth_token');
+      if (!token) return null;
+      const user = await loggedAccount();
+      return user;
+    } catch (err: unknown) {
+      console.error('Failed to initialize authentication state', err);
+      await SecureStore.deleteItemAsync('auth_token');
+      return null;
+    }
+  }
+)
 
 export const loginThunk = createAsyncThunk(
   'auth/login',
@@ -39,12 +55,14 @@ interface AuthState {
   user: User | null;
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
+  isInitializing: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   status: 'idle',
   error: null,
+  isInitializing: true,
 };
 
 const authSlice = createSlice({
@@ -68,7 +86,17 @@ const authSlice = createSlice({
       .addCase(logoutThunk.fulfilled, (state) => {
         state.user = null;
         state.status = 'idle';
-      });
+      })
+      .addCase(initializeAuth.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isInitializing = false;
+      })
+      .addCase(initializeAuth.pending, (state) => {
+        state.isInitializing = true;
+      })
+      .addCase(initializeAuth.rejected, (state) => {
+        state.isInitializing = false;
+      })
   },
 });
 
@@ -79,3 +107,4 @@ export const selectUser = (state: RootState) => state.auth.user;
 export const selectIsLoggedIn = (state: RootState) => state.auth.user !== null;
 export const selectAuthStatus = (state: RootState) => state.auth.status;
 export const selectAuthError = (state: RootState) => state.auth.error;
+export const selectIsInitializing = (state: RootState) => state.auth.isInitializing;

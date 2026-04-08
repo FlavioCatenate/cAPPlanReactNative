@@ -40,9 +40,9 @@ export default function ProjectDetailScreen({ route, navigation }: any) {
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.label}>Descrizione</Text>
+          <Text style={styles.label}>Description</Text>
           <Text style={styles.value}>
-            {project.description || "Nessuna descrizione disponibile."}
+            {project.description || "No description available."}
           </Text>
 
           <Text style={styles.label}>From Date</Text>
@@ -55,7 +55,7 @@ export default function ProjectDetailScreen({ route, navigation }: any) {
           <Text style={styles.value}>{project.type || "N/A"}</Text>
 
           <Text style={styles.label}>Is Active</Text>
-          <Text style={styles.value}>{project.isActive ? "Sì" : "No"}</Text>
+          <Text style={styles.value}>{project.isActive ? "Yes" : "No"}</Text>
 
           <Text style={styles.label}>Fixed Price</Text>
           <Text style={styles.value}>

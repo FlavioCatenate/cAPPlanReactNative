@@ -7,9 +7,7 @@ import SplashScreen from "./screens/SplashScreen";
 import AllocationPlanningScreen from "./screens/AllocationPlanning/AllocationPlanningScreen";
 import AllocationDetailScreen from "./screens/AllocationPlanning/AllocationDetailScreen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { AuthProvider } from "./context/AuthContext";
 import { Provider } from "react-redux";
-import { useAuth } from "./context/AuthContext";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import Colors from "./constants/colors";
 import { store } from "./store";
@@ -30,6 +28,9 @@ import EditProjectScreen from "./screens/Projects/editProjectScreen";
 import CalendarScreen from "./screens/Calendar/Calendarscreen";
 import EmployeeMonthScreen from "./screens/Calendar/EmployeeMonthScreen";
 import { Ionicons } from "@expo/vector-icons";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { selectIsLoggedIn, selectIsInitializing, initializeAuth, selectUser, logoutThunk } from "./store/slices/authSlice";
+import { useEffect } from "react";
 
 const Stack = createNativeStackNavigator();
 const AllocationStack = createNativeStackNavigator();
@@ -39,12 +40,13 @@ const ProjectStack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function DrawerContent({ navigation }: any) {
-  const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   const handleLogout = async () => {
-    await logout();
+    await dispatch(logoutThunk());
     navigation.closeDrawer();
-  };
+  }
 
   return (
     <View style={styles.drawerContent}>
@@ -307,11 +309,15 @@ function AppNavigator() {
 }
 
 function RootNavigator() {
-  const { isLoggedIn, isLoading } = useAuth();
+  const dispatch = useAppDispatch();
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
+  const isInitializing = useAppSelector(selectIsInitializing);
 
-  if (isLoading) {
-    return <SplashScreen />;
-  }
+  useEffect(() => {
+    dispatch(initializeAuth());
+  }, []);
+
+  if (isInitializing) return <SplashScreen />;
 
   return (
     <Stack.Navigator>
@@ -353,13 +359,11 @@ function RootNavigator() {
 export default function App() {
   return (
     <Provider store={store}>
-      <AuthProvider>
         <SafeAreaProvider>
           <NavigationContainer>
             <RootNavigator />
           </NavigationContainer>
         </SafeAreaProvider>
-      </AuthProvider>
     </Provider>
   );
 }

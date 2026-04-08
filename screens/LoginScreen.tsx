@@ -12,12 +12,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import Colors from "../constants/colors";
 import Typography from "../constants/typography";
-import { useAuth } from "../context/AuthContext";          // ← resta, migrazione graduale
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { loginThunk, selectAuthStatus, selectAuthError } from "../store/slices/authSlice";
 
 export default function LoginScreen({ navigation }: any) {
-  const { setUser } = useAuth();                           // ← resta temporaneamente
   const dispatch = useAppDispatch();
   const authStatus = useAppSelector(selectAuthStatus);
   const authError = useAppSelector(selectAuthError);
@@ -37,9 +35,7 @@ export default function LoginScreen({ navigation }: any) {
 
     const result = await dispatch(loginThunk({ username, password }));
 
-    if (loginThunk.fulfilled.match(result)) {
-      setUser(result.payload);                             // ← aggiorna ancora il Context
-    } else {
+    if (!loginThunk.fulfilled.match(result)) {
       Alert.alert("Login Failed", authError ?? "Controlla le credenziali e riprova.");
     }
   }
