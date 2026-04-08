@@ -35,6 +35,8 @@ export async function loggedAccount() {
   } catch (e: unknown) {
     if (axios.isAxiosError(e)) {
       const status = e.response?.status;
+      const res = await api.get("/api/account");
+      console.log("loggedAccount response:", res.status, res.data);
 
       if (status === 401) throw new Error("ACCOUNT_UNAUTHORIZED");
       if (e.code === "ECONNABORTED") throw new Error("ACCOUNT_TIMEOUT");

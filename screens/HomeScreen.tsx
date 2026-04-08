@@ -1,14 +1,17 @@
 import { Text, View, Image, StyleSheet } from "react-native";
-import { useAuth } from "../context/AuthContext";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { logoutThunk } from "../store/slices/authSlice";
+import { selectUser } from "../store/slices/authSlice";
 import Typography from "../constants/typography";
 import HomeButton from "../components/HomeButton";
 import Colors from "../constants/colors";
 
 export default function HomeScreen({ navigation }: any) {
-  const { user, logout } = useAuth();
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
 
   async function handleLogout() {
-    await logout();
+    await dispatch(logoutThunk());
   }
 
   return (

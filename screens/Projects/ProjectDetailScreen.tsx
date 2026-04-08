@@ -1,13 +1,26 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
-import { useMemo } from "react";
-import { useAppSelector } from "../../store/hooks";
-import { selectProjects, type Project } from "../../store/slices/projectSlice";
+import { View, Text, StyleSheet, Pressable, ScrollView, ActivityIndicator } from "react-native";
+import { useEffect, useMemo } from "react";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import {
+  fetchProjects,
+  selectProjects,
+  selectProjectsStatus,
+  selectProjectsHasBeenFetched,
+  type Project,
+} from "../../store/slices/projectSlice";
 import { getProjectStatus, getProjectStatusColor } from "../../utils/projectColors";
 import Colors from "../../constants/colors";
 
 export default function ProjectDetailScreen({ route, navigation }: any) {
+  const dispatch = useAppDispatch();
   const projectId: number | undefined = route?.params?.projectId;
   const projects = useAppSelector(selectProjects);
+  const status = useAppSelector(selectProjectsStatus);
+  const hasBeenFetched = useAppSelector(selectProjectsHasBeenFetched);
+
+  useEffect(() => {
+    if (!hasBeenFetched) dispatch(fetchProjects());
+  }, [dispatch, hasBeenFetched]);
 
   const project = useMemo<Project | undefined>(
     () =>
@@ -16,6 +29,14 @@ export default function ProjectDetailScreen({ route, navigation }: any) {
         : undefined,
     [projectId, projects]
   );
+
+  if (!hasBeenFetched || status === "loading") {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
 
   if (!project) {
     return (
