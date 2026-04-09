@@ -199,13 +199,7 @@ export default function EmployeeMonthScreen({ route, navigation }: any) {
 
       </ScrollView>
 
-      {/* ── Back link ── */}
-      <Pressable
-        onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Calendar')}
-      >
-        <Text style={styles.backText}>← Back</Text>
-      </Pressable>
-
+    
     </View>
   );
 }
