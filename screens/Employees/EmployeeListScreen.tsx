@@ -288,7 +288,7 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
         <EmployeeCard
           fullName={`${item.name} ${item.surname}`}
           email={item.emailAddress}
-          team={teamName ?? 'Nessun team'}
+          team={teamName ?? 'Team N/A'}
           leaderFullName={leaderFullName}
           role={role}
           roleColor={getEmployeeRoleColor(role)}

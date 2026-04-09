@@ -223,7 +223,9 @@ export default function CalendarScreen({ navigation }: any) {
 
       {/* ── Week-range header row ── */}
       <View style={styles.headerRow}>
-        <View style={{ width: NAME_COL_WIDTH }} />
+        <View style={{ width: NAME_COL_WIDTH, justifyContent: 'flex-end' }}>
+          <Text style={styles.employeesLabel}>Employees</Text>
+        </View>
         {weeks.map((w) => (
           <View
             key={w.label}
@@ -312,6 +314,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+  },
+  employeesLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: Colors.textColor,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   weekHeaderCell: {
     flex: 1,
