@@ -115,21 +115,25 @@ In `App.tsx` l'app e' avvolta da:
   - `AddAllocation`
   - `EditAllocation`
   - `AllocationDetail`
+  - `DuplicateAllocation`
 - `EmployeeStack` include:
   - `EmployeeList`
   - `EmployeeDetail`
   - `AddEmployee`
   - `EditEmployee`
+  - `DuplicateEmployee`
 - `SkillStack` include:
   - `SkillList`
   - `SkillDetail`
   - `AddSkill`
   - `EditSkill`
+  - `DuplicateSkill`
 - `ProjectStack` include:
   - `ProjectList`
   - `ProjectDetail`
   - `AddProject`
   - `EditProject`
+  - `DuplicateProject`
 - `CalendarStack` (navigator separato):
   - `Calendar`
   - `EmployeeMonth`
@@ -197,10 +201,11 @@ La gestione allocation e' basata su Redux Toolkit:
 
 ### Schermate
 
-- `AllocationPlanningScreen` — lista con paginazione client, FAB per aggiunta, modal opzioni per modifica/eliminazione
+- `AllocationPlanningScreen` — lista con paginazione client, FAB per aggiunta, modal opzioni per modifica/eliminazione/duplicazione
 - `AddAllocationScreen` — form con employee, progetto, percentuale, sales rate, fixed price, date
 - `EditAllocationScreen` — prefill dati allocation e update
 - `AllocationDetailScreen` — riepilogo allocation con indicatori visuali di stato
+- `DuplicateAllocationScreen` — form precompilato da allocation sorgente, crea una nuova allocation
 
 ## Modulo Employees
 
@@ -215,13 +220,15 @@ La gestione dipendenti e' basata su Redux Toolkit:
 
 ### Schermate
 
-- `EmployeeListScreen` — lista con ricerca e filtro
+- `EmployeeListScreen` — lista con ricerca, filtro e opzione di duplicazione
 - `EmployeeDetailScreen` — riepilogo dipendente con skill e team associati
 - `AddEmployeeScreen` — form creazione dipendente
 - `EditEmployeeScreen` — modifica dipendente
+- `DuplicateEmployeeScreen` — form precompilato da dipendente sorgente; salva skill via `POST /api/employee-skills` e team via `POST /api/employee-teams` dopo la creazione
 
 Le skill associate a un dipendente sono gestite tramite `employeeSkills` slice e `employee-skills` API.  
-I team associati a un dipendente sono gestiti tramite `employeeTeams` slice e `employee-teams` API.
+I team associati a un dipendente sono gestiti tramite `employeeTeams` slice e `employee-teams` API.  
+Il picker del team e' popolato dinamicamente da `GET /api/teams` (slice `employeeTeams`, selector `selectTeams`).
 
 ## Modulo Skills
 
@@ -236,10 +243,11 @@ La gestione skill e' basata su Redux Toolkit:
 
 ### Schermate
 
-- `SkillListScreen` — lista skill
+- `SkillListScreen` — lista skill con opzione di duplicazione
 - `SkillDetailScreen` — dettaglio skill (nome, descrizione)
 - `AddSkillScreen` — form creazione skill
 - `EditSkillScreen` — modifica skill
+- `DuplicateSkillScreen` — form precompilato da skill sorgente, crea una nuova skill
 
 ## Modulo Projects
 
@@ -254,10 +262,14 @@ La gestione progetti e' basata su Redux Toolkit:
 
 ### Schermate
 
-- `ProjectListScreen` — lista con paginazione client (10/pagina), filtro per stato attivo/inattivo e date
+- `ProjectListScreen` — lista con paginazione client (10/pagina), filtro per stato attivo/inattivo e date, opzione di duplicazione
 - `ProjectDetailScreen` — dettaglio progetto (nome, descrizione, date, tipo, stato attivo)
-- `AddProjectScreen` — form creazione progetto con date, descrizione e stato
-- `EditProjectScreen` — modifica dati progetto
+- `AddProjectScreen` — form creazione progetto con date, descrizione e stato; tipo progetto popolato dinamicamente
+- `EditProjectScreen` — modifica dati progetto; tipo progetto popolato dinamicamente
+- `DuplicateProjectScreen` — form precompilato da progetto sorgente, crea un nuovo progetto
+
+I tipi progetto (`PROJECT`, `OPPORTUNITY`, `DAYOFF`) sono derivati dinamicamente dal selector `selectDistinctProjectTypes` (slice `projects`), che parte da un set base noto (`KNOWN_PROJECT_TYPES`) e aggiunge eventuali tipi aggiuntivi presenti nello store.  
+`ProjectCard` mostra una chip visiva con il tipo del progetto.
 
 ## Modulo Calendar
 
@@ -270,12 +282,12 @@ La gestione progetti e' basata su Redux Toolkit:
 |---|---|
 | `AllocationCard` | Card riassuntiva di una allocation |
 | `DatePickerInput` | Input data con modal `react-native-date-picker`, normalizza su `YYYY-MM-DD` |
-| `EmployeeCard` | Card riassuntiva di un dipendente |
+| `EmployeeCard` | Card riassuntiva di un dipendente con badge del team |
 | `EmployeeFilterModal` | Modal filtro dipendenti per ruolo (leader/tutor) e team |
 | `FilterChips` | Chips per filtri attivi |
 | `FilterModal` | Modal filtro allocazioni per team, stato e dipendente |
 | `HomeButton` | Pulsante con varianti di stile (default, danger) |
-| `ProjectCard` | Card riassuntiva di un progetto con stato attivo e date |
+| `ProjectCard` | Card riassuntiva di un progetto con stato attivo, date e chip del tipo progetto |
 | `ProjectFilterModal` | Modal filtro progetti per stato attivo/inattivo |
 | `SkillBadge` | Badge visivo per una skill |
 
@@ -288,9 +300,9 @@ Slice configurati in `store/index.ts`:
 | `auth` | Stato autenticazione e profilo utente |
 | `allocations` | Lista e stato CRUD allocation |
 | `employees` | Lista e stato CRUD dipendenti |
-| `projects` | Lista e stato CRUD progetti |
+| `projects` | Lista e stato CRUD progetti; selector `selectDistinctProjectTypes` per i tipi progetto |
 | `skills` | Lista e stato CRUD skill |
-| `employeeTeams` | Associazioni dipendente-team |
+| `employeeTeams` | Associazioni dipendente-team; include `teams[]` e `teamsHasBeenFetched` per il picker dinamico |
 | `employeeSkills` | Associazioni dipendente-skill |
 | `filters` | Stato filtri attivi nell'UI |
 
@@ -328,7 +340,10 @@ Endpoint attualmente usati:
   - `DELETE /api/employee-skills/{id}`
 - **Employee Teams** (`services/employeeTeamService.ts`)
   - `GET /api/employee-teams?sort=id,asc&size=1000`
+  - `GET /api/teams` (lista team disponibili per il picker)
+  - `POST /api/employee-teams`
   - `PUT /api/employee-teams/{id}`
+  - `DELETE /api/employee-teams/{id}`
 - **Projects** (`services/projectService.ts`)
   - `GET /api/projects?sort=name,asc&size=500`
   - `POST /api/projects`
@@ -366,10 +381,30 @@ cAPPlanReactNative/
 |  |- SplashScreen.tsx
 |  |- EditProfileScreen.tsx
 |  |- AllocationPlanning/
+|  |  |- AllocationPlanningScreen.tsx
+|  |  |- AddAllocationScreen.tsx
+|  |  |- EditAllocationScreen.tsx
+|  |  |- AllocationDetailScreen.tsx
+|  |  |- duplicateAllocationScreen.tsx
 |  |- Calendar/
 |  |- Employees/
+|  |  |- EmployeeListScreen.tsx
+|  |  |- EmployeeDetailScreen.tsx
+|  |  |- addEmployeeScreen.tsx
+|  |  |- editEmployeeScreen.tsx
+|  |  |- duplicateEmployeeScreen.tsx
 |  |- Projects/
+|  |  |- ProjectListScreen.tsx
+|  |  |- ProjectDetailScreen.tsx
+|  |  |- addProjectScreen.tsx
+|  |  |- editProjectScreen.tsx
+|  |  |- duplicateProjectScreen.tsx
 |  |- Skills/
+|  |  |- SkillListScreen.tsx
+|  |  |- SkillDetailScreen.tsx
+|  |  |- addSkillScreen.tsx
+|  |  |- editSkillScreen.tsx
+|  |  |- duplicateSkillScreen.tsx
 |- services/
 |  |- api.ts
 |  |- allocationService.ts
