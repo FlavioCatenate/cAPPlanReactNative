@@ -210,7 +210,7 @@ export default function AddAllocationScreen({ navigation }: any) {
               paddingVertical: 18,
             }}
           >
-            Annulla
+            Cancel
           </Text>
         </Pressable>
       </View>

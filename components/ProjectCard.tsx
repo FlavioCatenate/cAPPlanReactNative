@@ -7,6 +7,7 @@ import { getProjectStatus, getProjectStatusColor } from "../utils/projectColors"
 interface ProjectCardProps {
   name: string;
   description: string;
+  type?: string;
   fromDate: string;
   toDate: string;
   isActive: boolean;
@@ -17,6 +18,7 @@ interface ProjectCardProps {
 function ProjectCard({
   name,
   description,
+  type,
   fromDate,
   toDate,
   isActive,
@@ -50,6 +52,11 @@ function ProjectCard({
         android_ripple={{ color: "rgba(0,0,0,0.05)" }}
       >
         <View style={styles.lowerLeft}>
+          {type ? (
+            <View style={styles.typeBadge}>
+              <Text style={styles.typeBadgeText}>{type}</Text>
+            </View>
+          ) : null}
           <Text style={styles.description} numberOfLines={3}>
             {description || "Nessuna descrizione"}
           </Text>
@@ -70,6 +77,7 @@ export default memo(ProjectCard, (prev, next) => {
   return (
     prev.name === next.name &&
     prev.description === next.description &&
+    prev.type === next.type &&
     prev.fromDate === next.fromDate &&
     prev.toDate === next.toDate &&
     prev.isActive === next.isActive
@@ -117,6 +125,7 @@ const styles = StyleSheet.create({
   lowerLeft: {
     flex: 1,
     paddingLeft: 15,
+    gap: 6,
   },
   lowerRight: {
     flex: 1,
@@ -139,6 +148,18 @@ const styles = StyleSheet.create({
   boldText: {
     fontWeight: "600",
     color: Colors.mainTextColor,
+  },
+  typeBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.backgroundColor,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  typeBadgeText: {
+    fontSize: 12,
+    color: Colors.mainTextColor,
+    fontWeight: '600',
   },
   ellipsis: {
     fontSize: 20,

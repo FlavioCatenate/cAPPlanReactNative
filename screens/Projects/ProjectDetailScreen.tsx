@@ -96,7 +96,7 @@ export default function ProjectDetailScreen({ route, navigation }: any) {
           else navigation.navigate("ProjectList");
         }}
       >
-        <Text style={styles.backText}>Torna indietro</Text>
+        <Text style={styles.backText}>Go Back</Text>
       </Pressable>
     </ScrollView>
   );

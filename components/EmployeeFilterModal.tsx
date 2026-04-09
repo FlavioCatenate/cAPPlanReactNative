@@ -292,7 +292,7 @@ export default function EmployeeFilterModal({
                     <Text style={styles.checkmark}>✓</Text>
                   )}
                 </View>
-                <Text style={styles.checkboxLabel}>Sì</Text>
+                <Text style={styles.checkboxLabel}>Yes</Text>
               </Pressable>
               <Pressable
                 style={styles.checkboxRow}

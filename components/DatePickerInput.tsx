@@ -83,9 +83,9 @@ export default function DatePickerInput({
         locale="it"
         minimumDate={minimumDate}
         maximumDate={maximumDate}
-        title="Seleziona una data"
-        confirmText="Conferma"
-        cancelText="Annulla"
+        title="Select a date"
+        confirmText="Confirm"
+        cancelText="Cancel"
       />
     </View>
   );

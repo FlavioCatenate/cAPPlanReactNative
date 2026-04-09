@@ -185,6 +185,7 @@ export default memo(function ProjectListScreen({ navigation }: any) {
       <ProjectCard
         name={item.name}
         description={item.description}
+        type={item.type}
         fromDate={item.fromDate}
         toDate={item.toDate}
         isActive={item.isActive}

@@ -18,8 +18,11 @@ import {
 } from '../../store/slices/employeeSlice';
 import {
   fetchEmployeeTeams,
+  fetchTeams,
   selectEmployeeRoleMap,
   selectEmployeeTeamHasBeenFetched,
+  selectTeams,
+  selectTeamsHasBeenFetched,
 } from '../../store/slices/employeeTeamSlice';
 import {
   fetchSkills,
@@ -27,14 +30,9 @@ import {
   selectSkillsStatus,
 } from '../../store/slices/skillSlice';
 import SkillBadge from '../../components/SkillBadge';
+import DatePickerInput from '../../components/DatePickerInput';
 import Colors from '../../constants/colors';
 import Typography from '../../constants/typography';
-
-/**
- * ⚠️  TEAM_OPTIONS: sostituisci con i valori enum reali del backend.
- *     Puoi anche derivarli da un endpoint dedicato se disponibile.
- */
-const TEAM_OPTIONS = ['WEB', 'MULESOFT', 'TIBCO'];
 
 export default function AddEmployeeScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
@@ -44,6 +42,8 @@ export default function AddEmployeeScreen({ navigation }: any) {
   const allEmployees = useAppSelector(selectEmployees);
   const employeeRoleMap = useAppSelector(selectEmployeeRoleMap);
   const teamsHasBeenFetched = useAppSelector(selectEmployeeTeamHasBeenFetched);
+  const teams = useAppSelector(selectTeams);
+  const teamsListHasBeenFetched = useAppSelector(selectTeamsHasBeenFetched);
 
   const [name, setName] = useState('');
   const [surname, setSurname] = useState('');
@@ -76,6 +76,10 @@ export default function AddEmployeeScreen({ navigation }: any) {
     if (!teamsHasBeenFetched) dispatch(fetchEmployeeTeams());
   }, [dispatch, teamsHasBeenFetched]);
 
+  useEffect(() => {
+    if (!teamsListHasBeenFetched) dispatch(fetchTeams());
+  }, [dispatch, teamsListHasBeenFetched]);
+
   const navigateBack = () => {
     if (navigation.canGoBack()) {
       navigation.goBack();
@@ -94,7 +98,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
 
   const handleSubmit = async () => {
     if (!name.trim() || !surname.trim()) {
-      Alert.alert('Errore', 'Nome e cognome sono obbligatori.');
+      Alert.alert('Error', 'Name and surname are required.');
       return;
     }
 
@@ -124,11 +128,11 @@ export default function AddEmployeeScreen({ navigation }: any) {
     setSubmitting(false);
 
     if (createEmployeeThunk.fulfilled.match(result)) {
-      // Ricarica la lista per avere i dati freschi con le relazioni idratate
+      // Reload the list to get fresh data with hydrated relationships
       await dispatch(fetchEmployees());
       navigateBack();
     } else {
-      Alert.alert('Errore', 'Creazione fallita. Riprova.');
+      Alert.alert('Error', 'Creation failed. Please try again.');
     }
   };
 
@@ -146,21 +150,21 @@ export default function AddEmployeeScreen({ navigation }: any) {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.label}>Nome *</Text>
+      <Text style={styles.label}>Name *</Text>
       <TextInput
         style={styles.input}
         value={name}
         onChangeText={setName}
-        placeholder="es. Mario"
+        placeholder="e.g. Mario"
         autoCapitalize="words"
       />
 
-      <Text style={styles.label}>Cognome *</Text>
+      <Text style={styles.label}>Surname *</Text>
       <TextInput
         style={styles.input}
         value={surname}
         onChangeText={setSurname}
-        placeholder="es. Rossi"
+        placeholder="e.g. Rossi"
         autoCapitalize="words"
       />
 
@@ -169,7 +173,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
         style={styles.input}
         value={emailAddress}
         onChangeText={setEmailAddress}
-        placeholder="es. mario.rossi@azienda.com"
+        placeholder="e.g. mario.rossi@azienda.com"
         keyboardType="email-address"
         autoCapitalize="none"
       />
@@ -180,14 +184,14 @@ export default function AddEmployeeScreen({ navigation }: any) {
           selectedValue={team}
           onValueChange={(val) => setTeam(val)}
         >
-          <Picker.Item label="Seleziona un team..." value={null} />
-          {TEAM_OPTIONS.map((t) => (
-            <Picker.Item key={t} label={t} value={t} />
+          <Picker.Item label="Select a team..." value={null} />
+          {teams.map((t) => (
+            <Picker.Item key={t.id} label={t.name} value={t.name} />
           ))}
         </Picker>
       </View>
 
-      <Text style={styles.label}>Ruolo</Text>
+      <Text style={styles.label}>Role</Text>
       <View style={styles.toggleRow}>
         <Pressable
           style={[styles.toggleButton, isLeader && styles.toggleActive]}
@@ -217,7 +221,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
           selectedValue={selectedTutorId}
           onValueChange={(val) => setSelectedTutorId(val)}
         >
-          <Picker.Item label="Nessun tutor" value={null} />
+          <Picker.Item label="No tutor assigned" value={null} />
           {tutorEmployees.map((e) => (
             <Picker.Item
               key={e.id}
@@ -233,7 +237,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
         style={styles.input}
         value={country}
         onChangeText={setCountry}
-        placeholder="es. Italy"
+        placeholder="e.g. Italy"
       />
 
       <Text style={styles.label}>Legal Entity</Text>
@@ -241,7 +245,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
         style={styles.input}
         value={legalEntity}
         onChangeText={setLegalEntity}
-        placeholder="es. Acme S.r.l."
+        placeholder="e.g. Acme S.r.l."
       />
 
       <Text style={styles.label}>Business Unit</Text>
@@ -249,7 +253,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
         style={styles.input}
         value={businessUnit}
         onChangeText={setBusinessUnit}
-        placeholder="es. Engineering"
+        placeholder="e.g. Engineering"
       />
 
       <Text style={styles.label}>Wage Rate</Text>
@@ -257,24 +261,22 @@ export default function AddEmployeeScreen({ navigation }: any) {
         style={styles.input}
         value={wageRate}
         onChangeText={setWageRate}
-        placeholder="es. 350.00"
+        placeholder="e.g. 350.00"
         keyboardType="decimal-pad"
       />
 
       <Text style={styles.label}>Start Working Date</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
         value={startWorkingDate}
-        onChangeText={setStartWorkingDate}
-        placeholder="YYYY-MM-DD"
+        onChange={setStartWorkingDate}
+        label="Start Working Date"
       />
 
       <Text style={styles.label}>Last Salary Increase Date</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
         value={lastSalaryIncreaseDate}
-        onChangeText={setLastSalaryIncreaseDate}
-        placeholder="YYYY-MM-DD"
+        onChange={setLastSalaryIncreaseDate}
+        label="Last Salary Increase Date"
       />
 
       <Text style={styles.label}>Is Active</Text>
@@ -283,7 +285,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
           style={[styles.toggleButton, isActive && styles.toggleActive]}
           onPress={() => setIsActive(true)}
         >
-          <Text style={[styles.toggleText, isActive && styles.toggleTextActive]}>Sì</Text>
+          <Text style={[styles.toggleText, isActive && styles.toggleTextActive]}>Yes</Text>
         </Pressable>
         <Pressable
           style={[styles.toggleButton, !isActive && styles.toggleActive]}
@@ -299,7 +301,7 @@ export default function AddEmployeeScreen({ navigation }: any) {
           style={[styles.toggleButton, isFreelancer && styles.toggleActive]}
           onPress={() => setIsFreelancer(true)}
         >
-          <Text style={[styles.toggleText, isFreelancer && styles.toggleTextActive]}>Sì</Text>
+          <Text style={[styles.toggleText, isFreelancer && styles.toggleTextActive]}>Yes</Text>
         </Pressable>
         <Pressable
           style={[styles.toggleButton, !isFreelancer && styles.toggleActive]}
@@ -335,11 +337,11 @@ export default function AddEmployeeScreen({ navigation }: any) {
           disabled={submitting}
         >
           <Text style={styles.submitText}>
-            {submitting ? 'Salvataggio...' : 'Crea Employee'}
+            {submitting ? 'Saving...' : 'Create Employee'}
           </Text>
         </Pressable>
         <Pressable onPress={navigateBack}>
-          <Text style={styles.cancelText}>Annulla</Text>
+          <Text style={styles.cancelText}>Cancel</Text>
         </Pressable>
       </View>
     </ScrollView>

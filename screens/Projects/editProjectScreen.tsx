@@ -13,23 +13,33 @@ import { Picker } from '@react-native-picker/picker';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import {
   updateProjectThunk,
+  fetchProjects,
   selectProjects,
+  selectProjectsHasBeenFetched,
+  selectDistinctProjectTypes,
 } from '../../store/slices/projectSlice';
 import DatePickerInput from '../../components/DatePickerInput';
 import { formStyles } from '../../constants/formStyles';
 import Colors from '../../constants/colors';
-
-const PROJECT_TYPES = ['PROJECT', 'INTERNAL', 'PRESALE', 'OTHER'];
 
 export default function EditProjectScreen({ route, navigation }: any) {
   const dispatch = useAppDispatch();
   const projectId: number | undefined = route?.params?.projectId;
 
   const projects = useAppSelector(selectProjects);
+  const projectsHasBeenFetched = useAppSelector(selectProjectsHasBeenFetched);
+  const projectTypes = useAppSelector(selectDistinctProjectTypes);
   const project = useMemo(
     () => projects.find((p) => p.id === projectId),
     [projects, projectId]
   );
+
+  // Safety-net: se il tipo del progetto corrente non è ancora nella lista, aggiungilo
+  const pickerTypes = useMemo(() => {
+    const currentType = project?.type;
+    if (!currentType || projectTypes.includes(currentType)) return projectTypes;
+    return [currentType, ...projectTypes];
+  }, [projectTypes, project?.type]);
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -40,6 +50,10 @@ export default function EditProjectScreen({ route, navigation }: any) {
   const [fixedPrice, setFixedPrice] = useState('');
   const [projectIdKpi, setProjectIdKpi] = useState('');
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!projectsHasBeenFetched) dispatch(fetchProjects());
+  }, [dispatch, projectsHasBeenFetched]);
 
   useEffect(() => {
     if (!project) return;
@@ -143,7 +157,8 @@ export default function EditProjectScreen({ route, navigation }: any) {
         <Text style={formStyles.label}>Type</Text>
         <View style={styles.pickerWrapper}>
           <Picker selectedValue={type} onValueChange={(val) => setType(val)}>
-            {PROJECT_TYPES.map((t) => (
+            <Picker.Item label="Select a type..." value="" />
+            {pickerTypes.map((t) => (
               <Picker.Item key={t} label={t} value={t} />
             ))}
           </Picker>

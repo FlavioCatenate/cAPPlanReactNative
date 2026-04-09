@@ -18,12 +18,15 @@ import {
 } from '../../store/slices/employeeSlice';
 import {
   fetchEmployeeTeams,
+  fetchTeams,
   selectEmployeeRoleMap,
   selectEmployeeTeamHasBeenFetched,
   selectEmployeeTeamMap,
-  selectAllTeamNames,
   selectEmployeeTeamItems,
+  selectTeams,
+  selectTeamsHasBeenFetched,
 } from '../../store/slices/employeeTeamSlice';
+import type { Team } from '../../services/employeeTeamService';
 import { updateEmployeeTeam, createEmployeeTeam, deleteEmployeeTeam as deleteEmployeeTeamRecord } from '../../services/employeeTeamService';
 import {
   fetchEmployeeSkills,
@@ -41,11 +44,9 @@ import {
   selectSkillsStatus,
 } from '../../store/slices/skillSlice';
 import SkillBadge from '../../components/SkillBadge';
+import DatePickerInput from '../../components/DatePickerInput';
 import Colors from '../../constants/colors';
 import Typography from '../../constants/typography';
-
-/** ⚠️  Sostituisci con i valori enum reali del backend */
-const TEAM_OPTIONS = ['WEB', 'MULESOFT', 'TIBCO'];
 
 export default function EditEmployeeScreen({ route, navigation }: any) {
   const dispatch = useAppDispatch();
@@ -54,7 +55,8 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
   const employees = useAppSelector(selectEmployees);
   const employeeRoleMap = useAppSelector(selectEmployeeRoleMap);
   const employeeTeamMap = useAppSelector(selectEmployeeTeamMap);
-  const allTeamNames = useAppSelector(selectAllTeamNames);
+  const teams = useAppSelector(selectTeams);
+  const teamsListHasBeenFetched = useAppSelector(selectTeamsHasBeenFetched);
   const employeeSkillMap = useAppSelector(selectEmployeeSkillMap);
   const employeeSkillItems = useAppSelector(selectEmployeeSkillItems);
   const employeeTeamItems = useAppSelector(selectEmployeeTeamItems);
@@ -91,12 +93,12 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
     [employees, employeeRoleMap, employeeId]
   );
 
-  // Safety-net picker: se il team corrente non è nella lista, aggiungilo
-  const pickerTeams = useMemo(() => {
+  // Safety-net picker: se il team assegnato non è nella lista API, aggiungilo come placeholder
+  const pickerTeams = useMemo((): Team[] => {
     const assignedTeam = employeeTeamMap.get(employeeId ?? -1)?.[0]?.name;
-    if (!assignedTeam || allTeamNames.includes(assignedTeam)) return allTeamNames;
-    return [assignedTeam, ...allTeamNames];
-  }, [allTeamNames, employeeTeamMap, employeeId]);
+    if (!assignedTeam || teams.some((t) => t.name === assignedTeam)) return teams;
+    return [{ id: -1, name: assignedTeam }, ...teams];
+  }, [teams, employeeTeamMap, employeeId]);
 
   useEffect(() => {
     if (skills.length === 0) dispatch(fetchSkills());
@@ -105,6 +107,10 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
   useEffect(() => {
     if (!teamsHasBeenFetched) dispatch(fetchEmployeeTeams());
   }, [dispatch, teamsHasBeenFetched]);
+
+  useEffect(() => {
+    if (!teamsListHasBeenFetched) dispatch(fetchTeams());
+  }, [dispatch, teamsListHasBeenFetched]);
 
   useEffect(() => {
     if (!skillsHasBeenFetched) dispatch(fetchEmployeeSkills());
@@ -156,11 +162,11 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
 
   const handleSubmit = async () => {
     if (!employeeId) {
-      Alert.alert('Errore', 'Employee non trovato.');
+      Alert.alert('Error', 'Employee not found.');
       return;
     }
     if (!name.trim() || !surname.trim()) {
-      Alert.alert('Errore', 'Nome e cognome sono obbligatori.');
+      Alert.alert('Error', 'Name and surname are required.');
       return;
     }
 
@@ -211,29 +217,29 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         (et) => et.employee.id === employeeId
       );
       if (team) {
-        const teamObj = employeeTeamItems.find((et) => et.team.name === team)?.team;
+        const teamObj = teams.find((t) => t.name === team);
         if (!teamObj) {
-          Alert.alert('Errore', `Team "${team}" non trovato. Riprova.`);
+          Alert.alert('Error', `Team "${team}" not found. Please try again.`);
           return;
         }
         const existingRecord = currentTeamItems[0];
         if (!existingRecord) {
-          // Nessun team assegnato → crea
+          // No team assigned → create
           await createEmployeeTeam(employeeId, teamObj.id, isLeader, isTutor);
         } else if (existingRecord.team.id !== teamObj.id) {
-          // Team cambiato → elimina vecchio, crea nuovo
+          // Team changed → delete old, create new
           await deleteEmployeeTeamRecord(existingRecord.id);
           await createEmployeeTeam(employeeId, teamObj.id, isLeader, isTutor);
         } else {
-          // Stesso team → aggiorna solo i flag
+          // Same team → update only the flags
           await updateEmployeeTeam(existingRecord, isLeader, isTutor);
         }
-        // Elimina eventuali record duplicati (team extra)
+        // Delete any duplicate records (extra teams)
         await Promise.all(
           currentTeamItems.slice(1).map((et) => deleteEmployeeTeamRecord(et.id))
         );
       } else {
-        // Nessun team selezionato → elimina tutti i record esistenti
+        // No team selected → delete all existing records
         await Promise.all(currentTeamItems.map((et) => deleteEmployeeTeamRecord(et.id)));
       }
       await dispatch(fetchEmployees());
@@ -244,8 +250,8 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
       const msg =
         typeof result.payload === 'string' && result.payload.trim()
           ? result.payload
-          : 'Aggiornamento fallito. Riprova.';
-      Alert.alert('Errore', msg);
+          : 'Update failed. Please try again.';
+      Alert.alert('Error', msg);
     }
   };
 
@@ -261,7 +267,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
     return (
       <View style={styles.centered}>
         <Text style={{ color: Colors.mainTextColor }}>
-          Employee non trovato.
+          Employee not found.
         </Text>
       </View>
     );
@@ -273,7 +279,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.label}>Nome *</Text>
+      <Text style={styles.label}>Name *</Text>
       <TextInput
         style={styles.input}
         value={name}
@@ -281,7 +287,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         autoCapitalize="words"
       />
 
-      <Text style={styles.label}>Cognome *</Text>
+      <Text style={styles.label}>Surname *</Text>
       <TextInput
         style={styles.input}
         value={surname}
@@ -301,14 +307,14 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
       <Text style={styles.label}>Team</Text>
       <View style={styles.pickerWrapper}>
         <Picker selectedValue={team} onValueChange={(val) => setTeam(val)}>
-          <Picker.Item label="Seleziona un team..." value={null} />
+          <Picker.Item label="Select a team..." value={null} />
           {pickerTeams.map((t) => (
-            <Picker.Item key={t} label={t} value={t} />
+            <Picker.Item key={t.id} label={t.name} value={t.name} />
           ))}
         </Picker>
       </View>
 
-      <Text style={styles.label}>Ruolo</Text>
+      <Text style={styles.label}>Role</Text>
       {employeeId && (() => {
         const role = employeeRoleMap.get(employeeId);
         const parts: string[] = [];
@@ -316,7 +322,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         if (role?.isTutor) parts.push('Tutor');
         return parts.length > 0 ? (
           <Text style={styles.roleHint}>
-            Stato attuale: {parts.join(', ')}
+            Current status: {parts.join(', ')}
           </Text>
         ) : null;
       })()}
@@ -349,7 +355,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
           selectedValue={selectedTutorId}
           onValueChange={(val) => setSelectedTutorId(val)}
         >
-          <Picker.Item label="Nessun tutor" value={null} />
+          <Picker.Item label="No tutor assigned" value={null} />
           {tutorEmployees.map((e) => (
             <Picker.Item
               key={e.id}
@@ -365,7 +371,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         style={styles.input}
         value={country}
         onChangeText={setCountry}
-        placeholder="es. Italy"
+        placeholder="e.g. Italy"
       />
 
       <Text style={styles.label}>Legal Entity</Text>
@@ -373,7 +379,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         style={styles.input}
         value={legalEntity}
         onChangeText={setLegalEntity}
-        placeholder="es. Acme S.r.l."
+        placeholder="e.g. Acme S.r.l."
       />
 
       <Text style={styles.label}>Business Unit</Text>
@@ -381,7 +387,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         style={styles.input}
         value={businessUnit}
         onChangeText={setBusinessUnit}
-        placeholder="es. Engineering"
+        placeholder="e.g. Engineering"
       />
 
       <Text style={styles.label}>Wage Rate</Text>
@@ -389,24 +395,22 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
         style={styles.input}
         value={wageRate}
         onChangeText={setWageRate}
-        placeholder="es. 350.00"
+        placeholder="e.g. 350.00"
         keyboardType="decimal-pad"
       />
 
       <Text style={styles.label}>Start Working Date</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
         value={startWorkingDate}
-        onChangeText={setStartWorkingDate}
-        placeholder="YYYY-MM-DD"
+        onChange={setStartWorkingDate}
+        label="Start Working Date"
       />
 
       <Text style={styles.label}>Last Salary Increase Date</Text>
-      <TextInput
-        style={styles.input}
+      <DatePickerInput
         value={lastSalaryIncreaseDate}
-        onChangeText={setLastSalaryIncreaseDate}
-        placeholder="YYYY-MM-DD"
+        onChange={setLastSalaryIncreaseDate}
+        label="Last Salary Increase Date"
       />
 
       <Text style={styles.label}>Is Active</Text>
@@ -415,7 +419,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
           style={[styles.toggleButton, isActive && styles.toggleActive]}
           onPress={() => setIsActive(true)}
         >
-          <Text style={[styles.toggleText, isActive && styles.toggleTextActive]}>Sì</Text>
+          <Text style={[styles.toggleText, isActive && styles.toggleTextActive]}>Yes</Text>
         </Pressable>
         <Pressable
           style={[styles.toggleButton, !isActive && styles.toggleActive]}
@@ -431,7 +435,7 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
           style={[styles.toggleButton, isFreelancer && styles.toggleActive]}
           onPress={() => setIsFreelancer(true)}
         >
-          <Text style={[styles.toggleText, isFreelancer && styles.toggleTextActive]}>Sì</Text>
+          <Text style={[styles.toggleText, isFreelancer && styles.toggleTextActive]}>Yes</Text>
         </Pressable>
         <Pressable
           style={[styles.toggleButton, !isFreelancer && styles.toggleActive]}
@@ -467,11 +471,11 @@ export default function EditEmployeeScreen({ route, navigation }: any) {
           disabled={submitting}
         >
           <Text style={styles.submitText}>
-            {submitting ? 'Salvataggio...' : 'Salva modifiche'}
+            {submitting ? 'Saving...' : 'Save Changes'}
           </Text>
         </Pressable>
         <Pressable onPress={navigateBack}>
-          <Text style={styles.cancelText}>Annulla</Text>
+          <Text style={styles.cancelText}>Cancel</Text>
         </Pressable>
       </View>
     </ScrollView>

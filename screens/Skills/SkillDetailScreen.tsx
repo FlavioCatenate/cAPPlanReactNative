@@ -56,7 +56,7 @@ export default function SkillDetailScreen({ route, navigation }: any) {
           else navigation.navigate("SkillList");
         }}
       >
-        <Text style={detailStyles.backText}>Torna indietro</Text>
+        <Text style={detailStyles.backText}>Go Back</Text>
       </Pressable>
     </ScrollView>
   );

@@ -61,6 +61,15 @@ export async function updateEmployeeTeam(
 }
 
 /**
+ * Fetch all available teams
+ * GET /api/teams
+ */
+export async function getAllTeams(): Promise<Team[]> {
+  const { data } = await api.get<Team[]>('/api/teams');
+  return data;
+}
+
+/**
  * Create a new employee-team relationship
  * POST /api/employee-teams
  */

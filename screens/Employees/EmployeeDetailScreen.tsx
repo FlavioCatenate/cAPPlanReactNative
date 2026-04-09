@@ -200,7 +200,7 @@ export default function EmployeeDetailScreen({ route, navigation }: any) {
           }
         }}
       >
-        <Text style={styles.backText}>Torna indietro</Text>
+        <Text style={styles.backText}>Go Back</Text>
       </Pressable>
     </ScrollView>
   );

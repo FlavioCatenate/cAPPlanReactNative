@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import axios from 'axios';
 import {
   getProjects,
@@ -131,3 +131,15 @@ export const selectProjectsStatus = (state: RootState) => state.projects.status;
 export const selectProjectsError = (state: RootState) => state.projects.error;
 export const selectProjectsHasBeenFetched = (state: RootState) =>
   state.projects.hasBeenFetched;
+
+/** Tipi noti dal backend — aggiunti qui come base garantita */
+const KNOWN_PROJECT_TYPES = ['PROJECT', 'OPPORTUNITY', 'DAYOFF'];
+
+export const selectDistinctProjectTypes = createSelector(
+  [selectProjects],
+  (projects): string[] => {
+    const types = new Set<string>(KNOWN_PROJECT_TYPES);
+    projects.forEach((p) => { if (p.type) types.add(p.type); });
+    return Array.from(types).sort();
+  }
+);

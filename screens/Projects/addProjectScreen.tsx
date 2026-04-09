@@ -8,22 +8,32 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Picker } from '@react-native-picker/picker';
-import { useAppDispatch } from '../../store/hooks';
-import { createProjectThunk } from '../../store/slices/projectSlice';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import {
+  createProjectThunk,
+  fetchProjects,
+  selectDistinctProjectTypes,
+  selectProjectsHasBeenFetched,
+} from '../../store/slices/projectSlice';
 import DatePickerInput from '../../components/DatePickerInput';
 import { formStyles } from '../../constants/formStyles';
 import Colors from '../../constants/colors';
 
-const PROJECT_TYPES = ['PROJECT', 'INTERNAL', 'PRESALE', 'OTHER'];
-
 export default function AddProjectScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
 
+  const projectsHasBeenFetched = useAppSelector(selectProjectsHasBeenFetched);
+  const projectTypes = useAppSelector(selectDistinctProjectTypes);
+
+  useEffect(() => {
+    if (!projectsHasBeenFetched) dispatch(fetchProjects());
+  }, [dispatch, projectsHasBeenFetched]);
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState('PROJECT');
+  const [type, setType] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [isActive, setIsActive] = useState(true);
@@ -103,7 +113,8 @@ export default function AddProjectScreen({ navigation }: any) {
         <Text style={formStyles.label}>Type</Text>
         <View style={styles.pickerWrapper}>
           <Picker selectedValue={type} onValueChange={(val) => setType(val)}>
-            {PROJECT_TYPES.map((t) => (
+            <Picker.Item label="Select a type..." value="" />
+            {projectTypes.map((t) => (
               <Picker.Item key={t} label={t} value={t} />
             ))}
           </Picker>
@@ -123,7 +134,7 @@ export default function AddProjectScreen({ navigation }: any) {
           ]}
           onPress={() => setIsActive(!isActive)}
         >
-          <Text style={styles.toggleText}>{isActive ? 'Sì' : 'No'}</Text>
+          <Text style={styles.toggleText}>{isActive ? 'Yes' : 'No'}</Text>
         </Pressable>
 
         <Text style={formStyles.label}>Fixed Price (€)</Text>

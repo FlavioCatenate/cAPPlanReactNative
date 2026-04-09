@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import {
   getAllEmployeeTeams,
+  getAllTeams,
   type EmployeeTeam,
   type Team,
 } from '../../services/employeeTeamService';
@@ -11,6 +12,8 @@ interface EmployeeTeamState {
   status: 'idle' | 'loading' | 'failed';
   error: string | null;
   hasBeenFetched: boolean;
+  teams: Team[];
+  teamsHasBeenFetched: boolean;
 }
 
 const initialState: EmployeeTeamState = {
@@ -18,7 +21,23 @@ const initialState: EmployeeTeamState = {
   status: 'idle',
   error: null,
   hasBeenFetched: false,
+  teams: [],
+  teamsHasBeenFetched: false,
 };
+
+export const fetchTeams = createAsyncThunk<
+  Team[],
+  void,
+  { rejectValue: string }
+>('employeeTeams/fetchTeams', async (_, { rejectWithValue }) => {
+  try {
+    return await getAllTeams();
+  } catch (err) {
+    return rejectWithValue(
+      err instanceof Error ? err.message : 'Errore caricamento teams'
+    );
+  }
+});
 
 /**
  * Fetch all employee-team relationships (lazy)
@@ -56,6 +75,10 @@ const employeeTeamSlice = createSlice({
       .addCase(fetchEmployeeTeams.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload ?? 'Errore sconosciuto';
+      })
+      .addCase(fetchTeams.fulfilled, (state, action) => {
+        state.teams = action.payload;
+        state.teamsHasBeenFetched = true;
       });
   },
 });
@@ -75,6 +98,12 @@ export const selectEmployeeTeamError = (state: RootState) =>
 
 export const selectEmployeeTeamHasBeenFetched = (state: RootState) =>
   state.employeeTeams.hasBeenFetched;
+
+export const selectTeams = (state: RootState) =>
+  state.employeeTeams.teams;
+
+export const selectTeamsHasBeenFetched = (state: RootState) =>
+  state.employeeTeams.teamsHasBeenFetched;
 
 /**
  * Memoized map: employeeId → [Team, Team, ...]
