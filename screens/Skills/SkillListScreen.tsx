@@ -35,9 +35,9 @@ const EmptyState = memo(function EmptyState() {
   return (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>🛠️</Text>
-      <Text style={styles.emptyTitle}>Nessuna Skill</Text>
+      <Text style={styles.emptyTitle}>No Skills</Text>
       <Text style={styles.emptySubtitle}>
-        Aggiungi la prima skill premendo il bottone + in alto
+        Add the first skill by pressing the + button at the top right.
       </Text>
     </View>
   );
@@ -130,15 +130,29 @@ export default memo(function SkillListScreen({ navigation }: any) {
     }
   }, [navigation, selectedSkill]);
 
+  const handlePressDuplicate = useCallback(() => {
+    setOptionsModalVisible(false);
+    if (!selectedSkill) return;
+    const routeNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+    if (routeNames.includes('DuplicateSkill')) {
+      navigation.navigate('DuplicateSkill', { skillId: selectedSkill.id });
+    } else {
+      navigation.navigate('SkillStack', {
+        screen: 'DuplicateSkill',
+        params: { skillId: selectedSkill.id },
+      });
+    }
+  }, [navigation, selectedSkill]);
+
   const handleDelete = useCallback(() => {
     if (!selectedSkill) return;
     Alert.alert(
-      'Conferma Eliminazione',
-      `Vuoi veramente eliminare la skill "${selectedSkill.name}"?`,
+      'Confirm Deletion',
+      `Are you sure you want to delete the skill "${selectedSkill.name}"?`,
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Elimina',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             setDeleteLoading(true);
@@ -148,7 +162,7 @@ export default memo(function SkillListScreen({ navigation }: any) {
               setOptionsModalVisible(false);
               setSelectedSkill(null);
             } else {
-              Alert.alert('Errore', 'Eliminazione fallita. Riprova.');
+              Alert.alert('Error', 'Deletion failed. Please try again.');
             }
           },
         },
@@ -167,7 +181,7 @@ export default memo(function SkillListScreen({ navigation }: any) {
   if (status === 'failed') {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>Errore: {error}</Text>
+        <Text style={styles.errorText}>Error: {error}</Text>
       </View>
     );
   }
@@ -226,7 +240,15 @@ export default memo(function SkillListScreen({ navigation }: any) {
               onPress={handlePressEdit}
               disabled={deleteLoading}
             >
-              <Text style={styles.modalOptionText}>Modifica</Text>
+              <Text style={styles.modalOptionText}>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.modalOption}
+              onPress={handlePressDuplicate}
+              disabled={deleteLoading}
+            >
+              <Text style={styles.modalOptionText}>Duplicate</Text>
             </Pressable>
 
             <Pressable
@@ -235,7 +257,7 @@ export default memo(function SkillListScreen({ navigation }: any) {
               disabled={deleteLoading}
             >
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>
-                {deleteLoading ? 'Eliminando...' : 'Elimina'}
+                {deleteLoading ? 'Deleting...' : 'Delete'}
               </Text>
             </Pressable>
           </View>

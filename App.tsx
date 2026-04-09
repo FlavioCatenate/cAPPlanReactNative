@@ -13,18 +13,22 @@ import Colors from "./constants/colors";
 import { store } from "./store";
 import AddAllocationScreen from "./screens/AllocationPlanning/addAllocationScreen";
 import EditAllocationScreen from "./screens/AllocationPlanning/editAllocationScreen";
+import DuplicateAllocationScreen from "./screens/AllocationPlanning/duplicateAllocationScreen";
 import EmployeeListScreen from "./screens/Employees/EmployeeListScreen";
 import EmployeeDetailScreen from "./screens/Employees/EmployeeDetailScreen";
 import AddEmployeeScreen from "./screens/Employees/addEmployeeScreen";
 import EditEmployeeScreen from "./screens/Employees/editEmployeeScreen";
+import DuplicateEmployeeScreen from "./screens/Employees/duplicateEmployeeScreen";
 import SkillListScreen from "./screens/Skills/SkillListScreen";
 import SkillDetailScreen from "./screens/Skills/SkillDetailScreen";
 import AddSkillScreen from "./screens/Skills/addSkillScreen";
 import EditSkillScreen from "./screens/Skills/editSkillScreen";
+import DuplicateSkillScreen from "./screens/Skills/duplicateSkillScreen";
 import ProjectListScreen from "./screens/Projects/ProjectListScreen";
 import ProjectDetailScreen from "./screens/Projects/ProjectDetailScreen";
 import AddProjectScreen from "./screens/Projects/addProjectScreen";
 import EditProjectScreen from "./screens/Projects/editProjectScreen";
+import DuplicateProjectScreen from "./screens/Projects/duplicateProjectScreen";
 import CalendarScreen from "./screens/Calendar/Calendarscreen";
 import EmployeeMonthScreen from "./screens/Calendar/EmployeeMonthScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -135,8 +139,8 @@ function AllocationStackNavigator() {
         component={AddAllocationScreen}
         options={{
           headerShown: false,
-          headerTitle: "Nuova Allocation",
-          headerBackTitle: "Indietro",
+          headerTitle: "New Allocation",
+          headerBackTitle: "Back",
         }}
       />
       <AllocationStack.Screen
@@ -144,13 +148,20 @@ function AllocationStackNavigator() {
         component={EditAllocationScreen}
         options={{
           headerShown: false,
-          headerTitle: "Modifica Allocation",
-          headerBackTitle: "Indietro",
+          headerTitle: "Edit Allocation",
+          headerBackTitle: "Back",
         }}
       />
       <AllocationStack.Screen
         name="AllocationDetail"
         component={AllocationDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <AllocationStack.Screen
+        name="DuplicateAllocation"
+        component={DuplicateAllocationScreen}
         options={{
           headerShown: false,
         }}
@@ -182,6 +193,11 @@ function EmployeeStackNavigator() {
         component={EditEmployeeScreen}
         options={{ headerShown: false }}
       />
+      <EmployeeStack.Screen
+        name="DuplicateEmployee"
+        component={DuplicateEmployeeScreen}
+        options={{ headerShown: false }}
+      />
     </EmployeeStack.Navigator>
   );
 }
@@ -209,6 +225,11 @@ function SkillStackNavigator() {
         component={EditSkillScreen}
         options={{ headerShown: false }}
       />
+      <SkillStack.Screen
+        name="DuplicateSkill"
+        component={DuplicateSkillScreen}
+        options={{ headerShown: false }}
+      />
     </SkillStack.Navigator>
   );
 }
@@ -234,6 +255,11 @@ function ProjectStackNavigator() {
       <ProjectStack.Screen
         name="EditProject"
         component={EditProjectScreen}
+        options={{ headerShown: false }}
+      />
+      <ProjectStack.Screen
+        name="DuplicateProject"
+        component={DuplicateProjectScreen}
         options={{ headerShown: false }}
       />
     </ProjectStack.Navigator>
@@ -338,16 +364,16 @@ function RootNavigator() {
             name="Calendar"
             component={CalendarScreen}
             options={{
-              headerTitle: "Calendario",
-              headerBackTitle: "Indietro",
+              headerTitle: "Calendar View",
+              headerBackTitle: "Back",
             }}
           />
           <Stack.Screen
             name="EmployeeMonth"
             component={EmployeeMonthScreen}
             options={{
-              headerTitle: "Calendario Mensile",
-              headerBackTitle: "Indietro",
+              headerTitle: "Monthly Calendar",
+              headerBackTitle: "Back",
             }}
           />
         </>

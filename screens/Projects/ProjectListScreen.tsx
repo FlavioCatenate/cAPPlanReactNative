@@ -42,9 +42,9 @@ const EmptyState = memo(function EmptyState() {
   return (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>📁</Text>
-      <Text style={styles.emptyTitle}>Nessun Progetto</Text>
+      <Text style={styles.emptyTitle}>No Projects</Text>
       <Text style={styles.emptySubtitle}>
-        Aggiungi il primo progetto premendo il bottone + in alto
+        Add your first project by pressing the + button above
       </Text>
     </View>
   );
@@ -57,12 +57,12 @@ const LoadMoreFooter = memo(function LoadMoreFooter({
 }) {
   return (
     <Pressable style={styles.loadMoreButton} onPress={onLoadMore}>
-      <Text style={styles.loadMoreText}>Carica altri</Text>
+      <Text style={styles.loadMoreText}>Load More</Text>
     </Pressable>
   );
 });
 
-// ─── Schermata principale ─────────────────────────────────────────────────────
+// ─── Main Screen ─────────────────────────────────────────────────────────────
 
 export default memo(function ProjectListScreen({ navigation }: any) {
   const dispatch = useAppDispatch();
@@ -154,15 +154,29 @@ export default memo(function ProjectListScreen({ navigation }: any) {
     }
   }, [navigation, selectedProject]);
 
+  const handlePressDuplicate = useCallback(() => {
+    setOptionsModalVisible(false);
+    if (!selectedProject) return;
+    const routeNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+    if (routeNames.includes('DuplicateProject')) {
+      navigation.navigate('DuplicateProject', { projectId: selectedProject.id });
+    } else {
+      navigation.navigate('ProjectStack', {
+        screen: 'DuplicateProject',
+        params: { projectId: selectedProject.id },
+      });
+    }
+  }, [navigation, selectedProject]);
+
   const handleDelete = useCallback(() => {
     if (!selectedProject) return;
     Alert.alert(
-      'Conferma Eliminazione',
-      `Vuoi veramente eliminare il progetto "${selectedProject.name}"?`,
+      'Confirm Deletion',
+      `Are you sure you want to delete the project "${selectedProject.name}"?`,
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Elimina',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             setDeleteLoading(true);
@@ -172,7 +186,7 @@ export default memo(function ProjectListScreen({ navigation }: any) {
               setOptionsModalVisible(false);
               setSelectedProject(null);
             } else {
-              Alert.alert('Errore', 'Eliminazione fallita. Riprova.');
+              Alert.alert('Error', 'Deletion failed. Please try again.');
             }
           },
         },
@@ -214,7 +228,7 @@ export default memo(function ProjectListScreen({ navigation }: any) {
   if (status === 'failed') {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>Errore: {error}</Text>
+        <Text style={styles.errorText}>Error: {error}</Text>
       </View>
     );
   }
@@ -274,7 +288,15 @@ export default memo(function ProjectListScreen({ navigation }: any) {
               onPress={handlePressEdit}
               disabled={deleteLoading}
             >
-              <Text style={styles.modalOptionText}>Modifica</Text>
+              <Text style={styles.modalOptionText}>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.modalOption}
+              onPress={handlePressDuplicate}
+              disabled={deleteLoading}
+            >
+              <Text style={styles.modalOptionText}>Duplicate</Text>
             </Pressable>
 
             <Pressable
@@ -283,7 +305,7 @@ export default memo(function ProjectListScreen({ navigation }: any) {
               disabled={deleteLoading}
             >
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>
-                {deleteLoading ? 'Eliminando...' : 'Elimina'}
+                {deleteLoading ? 'Deleting...' : 'Delete'}
               </Text>
             </Pressable>
           </View>

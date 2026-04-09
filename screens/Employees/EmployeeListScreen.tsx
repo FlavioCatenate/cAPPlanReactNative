@@ -216,15 +216,29 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
     }
   }, [navigation, selectedEmployee]);
 
+  const handlePressDuplicate = useCallback(() => {
+    setOptionsModalVisible(false);
+    if (!selectedEmployee) return;
+    const routeNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+    if (routeNames.includes('DuplicateEmployee')) {
+      navigation.navigate('DuplicateEmployee', { employeeId: selectedEmployee.id });
+    } else {
+      navigation.navigate('EmployeeStack', {
+        screen: 'DuplicateEmployee',
+        params: { employeeId: selectedEmployee.id },
+      });
+    }
+  }, [navigation, selectedEmployee]);
+
   const handleDelete = useCallback(() => {
     if (!selectedEmployee) return;
     Alert.alert(
-      'Conferma Eliminazione',
-      `Vuoi veramente eliminare ${selectedEmployee.name} ${selectedEmployee.surname}?`,
+      'Confirm Deletion',
+      `Are you sure you want to delete ${selectedEmployee.name} ${selectedEmployee.surname}?`,
       [
-        { text: 'Annulla', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Elimina',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             setDeleteLoading(true);
@@ -236,7 +250,7 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
               setOptionsModalVisible(false);
               setSelectedEmployee(null);
             } else {
-              Alert.alert('Errore', 'Eliminazione fallita. Riprova.');
+              Alert.alert('Error', 'Deletion failed. Please try again.');
             }
           },
         },
@@ -317,7 +331,7 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
   if (status === 'failed') {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>Errore: {error}</Text>
+        <Text style={styles.errorText}>Error: {error}</Text>
       </View>
     );
   }
@@ -400,7 +414,15 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
               onPress={handlePressEdit}
               disabled={deleteLoading}
             >
-              <Text style={styles.modalOptionText}>Modifica</Text>
+              <Text style={styles.modalOptionText}>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.modalOption}
+              onPress={handlePressDuplicate}
+              disabled={deleteLoading}
+            >
+              <Text style={styles.modalOptionText}>Duplicate</Text>
             </Pressable>
 
             <Pressable
@@ -409,7 +431,7 @@ export default memo(function EmployeeListScreen({ navigation }: any) {
               disabled={deleteLoading}
             >
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>
-                {deleteLoading ? 'Eliminando...' : 'Elimina'}
+                {deleteLoading ? 'Deleting...' : 'Delete'}
               </Text>
             </Pressable>
           </View>

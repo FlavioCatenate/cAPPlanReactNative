@@ -33,7 +33,7 @@ interface AllocationListProps {
 const LoadMoreFooter = memo(function LoadMoreFooter({ onLoadMore }: { onLoadMore: () => void }) {
   return (
     <Pressable style={styles.loadMoreButton} onPress={onLoadMore}>
-      <Text style={styles.loadMoreText}>Carica altri</Text>
+      <Text style={styles.loadMoreText}>Load More</Text>
     </Pressable>
   );
 });
@@ -42,9 +42,9 @@ const EmptyState = memo(function EmptyState() {
   return (
     <View style={styles.emptyStateContainer}>
       <Text style={styles.emptyStateIcon}>📋</Text>
-      <Text style={styles.emptyStateTitle}>Nessuna Allocation</Text>
+      <Text style={styles.emptyStateTitle}>No Allocations</Text>
       <Text style={styles.emptyStateSubtitle}>
-        Crea la tua prima allocation premendo il bottone + in basso a destra
+        Create your first allocation by pressing the + button in the bottom right corner
       </Text>
     </View>
   );
@@ -196,6 +196,22 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
     });
   }, [navigation, selectedAllocation]);
 
+  const handlePressDuplicateAllocation = useCallback(() => {
+    setOptionsModalVisible(false);
+    if (!selectedAllocation) return;
+    const currentRouteNames: string[] = navigation?.getState?.()?.routeNames ?? [];
+
+    if (currentRouteNames.includes('DuplicateAllocation')) {
+      navigation.navigate('DuplicateAllocation', { allocationId: selectedAllocation.id });
+      return;
+    }
+
+    navigation.navigate('AllocationStack', {
+      screen: 'DuplicateAllocation',
+      params: { allocationId: selectedAllocation.id },
+    });
+  }, [navigation, selectedAllocation]);
+
 
   /**
    * Handle delete con conferma + loading state
@@ -204,15 +220,15 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
     if (!selectedAllocation) return;
 
     Alert.alert(
-      'Conferma Eliminazione',
-      `Vuoi veramente eliminare l'allocation di ${selectedAllocation.employee?.name}?`,
+      'Confirm Deletion',
+      `Are you sure you want to delete the allocation for ${selectedAllocation.employee?.name}?`,
       [
         {
-          text: 'Annulla',
+          text: 'Cancel',
           style: 'cancel',
         },
         {
-          text: 'Elimina',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             setDeleteLoading(true);
@@ -223,7 +239,7 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
               setOptionsModalVisible(false);
               setSelectedAllocation(null);
             } else {
-              Alert.alert('Errore', 'Eliminazione fallita. Riprova.');
+              Alert.alert('Error', 'Deletion failed. Please try again.');
             }
           },
         },
@@ -242,7 +258,7 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
   if (status === 'failed') {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>Errore: {error}</Text>
+        <Text style={styles.errorText}>Error: {error}</Text>
       </View>
     );
   }
@@ -306,7 +322,15 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
               onPress={handlePressEditAllocation}
               disabled={deleteLoading}
             >
-              <Text style={styles.modalOptionText}>Modifica</Text>
+              <Text style={styles.modalOptionText}>Edit</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.modalOption}
+              onPress={handlePressDuplicateAllocation}
+              disabled={deleteLoading}
+            >
+              <Text style={styles.modalOptionText}>Duplicate</Text>
             </Pressable>
 
             <Pressable
@@ -315,7 +339,7 @@ android_ripple={{ color: 'rgba(0,0,0,0.1)', radius: 20, borderless: true }}
               disabled={deleteLoading}
             >
               <Text style={[styles.modalOptionText, styles.modalDeleteText]}>
-                {deleteLoading ? 'Eliminando...' : 'Elimina'}
+                {deleteLoading ? 'Deleting...' : 'Delete'}
               </Text>
             </Pressable>
           </View>
