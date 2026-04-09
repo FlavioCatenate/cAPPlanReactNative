@@ -46,11 +46,11 @@ export default function EditSkillScreen({ route, navigation }: any) {
  
   const handleSubmit = async () => {
     if (!skillId) {
-      Alert.alert('Errore', 'Skill non trovata.');
+      Alert.alert('Error', 'Skill not found.');
       return;
     }
     if (!name.trim()) {
-      Alert.alert('Errore', 'Il nome della skill è obbligatorio.');
+      Alert.alert('Error', 'Skill name is required.');
       return;
     }
  
@@ -73,15 +73,15 @@ export default function EditSkillScreen({ route, navigation }: any) {
       const msg =
         typeof result.payload === 'string' && result.payload.trim()
           ? result.payload
-          : 'Aggiornamento fallito. Riprova.';
-      Alert.alert('Errore', msg);
+          : 'Update failed. Please try again.';
+      Alert.alert('Error', msg);
     }
   };
  
   if (!skill) {
     return (
       <View style={formStyles.centered}>
-        <Text style={{ color: Colors.mainTextColor }}>Skill non trovata.</Text>
+        <Text style={{ color: Colors.mainTextColor }}>Skill not found.</Text>
       </View>
     );
   }
@@ -96,7 +96,7 @@ export default function EditSkillScreen({ route, navigation }: any) {
         contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={formStyles.label}>Nome *</Text>
+        <Text style={formStyles.label}>Name *</Text>
         <TextInput
           style={formStyles.input}
           value={name}
@@ -104,7 +104,7 @@ export default function EditSkillScreen({ route, navigation }: any) {
           autoCapitalize="words"
         />
  
-        <Text style={formStyles.label}>Descrizione</Text>
+        <Text style={formStyles.label}>Description</Text>
         <TextInput
           style={[formStyles.input, formStyles.textArea]}
           value={description}
@@ -121,11 +121,11 @@ export default function EditSkillScreen({ route, navigation }: any) {
             disabled={submitting}
           >
             <Text style={formStyles.submitText}>
-              {submitting ? 'Salvataggio...' : 'Salva modifiche'}
+              {submitting ? 'Saving...' : 'Save Changes'}
             </Text>
           </Pressable>
           <Pressable onPress={navigateBack}>
-            <Text style={formStyles.cancelText}>Annulla</Text>
+            <Text style={formStyles.cancelText}>Cancel</Text>
           </Pressable>
         </View>
       </ScrollView>

@@ -39,12 +39,12 @@ export default function SkillDetailScreen({ route, navigation }: any) {
         <View style={detailStyles.body}>
           {skill.description ? (
             <>
-              <Text style={detailStyles.label}>Descrizione</Text>
+              <Text style={detailStyles.label}>Description</Text>
               <Text style={detailStyles.value}>{skill.description}</Text>
             </>
           ) : (
             <Text style={detailStyles.empty}>
-              Nessuna descrizione disponibile.
+              No description available.
             </Text>
           )}
         </View>

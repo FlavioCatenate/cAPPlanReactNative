@@ -29,7 +29,7 @@ export default function AddSkillScreen({ navigation }: any) {
  
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Errore', 'Il nome della skill è obbligatorio.');
+      Alert.alert('Error', 'Skill name is required.');
       return;
     }
     setSubmitting(true);
@@ -44,7 +44,7 @@ export default function AddSkillScreen({ navigation }: any) {
     if (createSkillThunk.fulfilled.match(result)) {
       navigateBack();
     } else {
-      Alert.alert('Errore', 'Creazione fallita. Riprova.');
+      Alert.alert('Error', 'Creation failed. Please try again.');
     }
   };
  
@@ -58,21 +58,21 @@ export default function AddSkillScreen({ navigation }: any) {
         contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={formStyles.label}>Nome *</Text>
+        <Text style={formStyles.label}>Name *</Text>
         <TextInput
           style={formStyles.input}
           value={name}
           onChangeText={setName}
-          placeholder="es. React Native"
+          placeholder="e.g. React Native"
           autoCapitalize="words"
         />
  
-        <Text style={formStyles.label}>Descrizione</Text>
+        <Text style={formStyles.label}>Description</Text>
         <TextInput
           style={[formStyles.input, formStyles.textArea]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Descrizione opzionale..."
+          placeholder="Optional description..."
           multiline
           numberOfLines={4}
           textAlignVertical="top"
@@ -85,11 +85,11 @@ export default function AddSkillScreen({ navigation }: any) {
             disabled={submitting}
           >
             <Text style={formStyles.submitText}>
-              {submitting ? 'Salvataggio...' : 'Crea Skill'}
+              {submitting ? 'Saving...' : 'Create Skill'}
             </Text>
           </Pressable>
           <Pressable onPress={navigateBack}>
-            <Text style={formStyles.cancelText}>Annulla</Text>
+            <Text style={formStyles.cancelText}>Cancel</Text>
           </Pressable>
         </View>
       </ScrollView>

@@ -38,7 +38,7 @@ export const fetchProjects = createAsyncThunk<
     return await getProjects();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore sconosciuto'
+      err instanceof Error ? err.message : 'Unknown error'
     );
   }
 });
@@ -51,7 +51,7 @@ export const createProjectThunk = createAsyncThunk<
   try {
     return await createProject(data);
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -71,7 +71,7 @@ export const updateProjectThunk = createAsyncThunk<
         err.message;
       return rejectWithValue(String(msg));
     }
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -84,7 +84,7 @@ export const deleteProjectThunk = createAsyncThunk<
     await deleteProject(id);
     return id;
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -107,7 +107,7 @@ const projectSlice = createSlice({
       })
       .addCase(fetchProjects.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       })
       .addCase(createProjectThunk.fulfilled, (state, action) => {
         state.items.push(action.payload);

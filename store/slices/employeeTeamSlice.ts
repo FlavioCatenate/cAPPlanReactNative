@@ -34,7 +34,7 @@ export const fetchTeams = createAsyncThunk<
     return await getAllTeams();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore caricamento teams'
+      err instanceof Error ? err.message : 'Error loading teams'
     );
   }
 });
@@ -52,7 +52,7 @@ export const fetchEmployeeTeams = createAsyncThunk<
     return await getAllEmployeeTeams();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore caricamento team'
+      err instanceof Error ? err.message : 'Error loading employee-team relationships'
     );
   }
 });
@@ -74,7 +74,7 @@ const employeeTeamSlice = createSlice({
       })
       .addCase(fetchEmployeeTeams.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       })
       .addCase(fetchTeams.fulfilled, (state, action) => {
         state.teams = action.payload;

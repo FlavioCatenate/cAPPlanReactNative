@@ -33,14 +33,14 @@ export const loginThunk = createAsyncThunk(
     } catch (err: unknown) {
       if (err instanceof Error) {
         if (err.message === 'INVALID_CREDENTIALS') {
-          return rejectWithValue('Credenziali non valide');
+          return rejectWithValue('Invalid credentials. Please check your username and password.');
         }
         if (err.message === 'LOGIN_TIMEOUT' || err.message === 'LOGIN_NETWORK') {
-          return rejectWithValue('Backend non raggiungibile. Controlla URL/API e rete.');
+          return rejectWithValue('Backend not reachable. Check URL/API and network.');
         }
       }
 
-      return rejectWithValue('Errore durante il login');
+      return rejectWithValue('Error during login');
     }
   }
 );

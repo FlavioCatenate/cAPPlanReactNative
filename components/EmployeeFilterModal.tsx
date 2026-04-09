@@ -152,7 +152,7 @@ export default function EmployeeFilterModal({
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Filtri</Text>
+            <Text style={styles.headerTitle}>Filters</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <Text style={styles.closeButton}>✕</Text>
             </Pressable>
@@ -169,10 +169,10 @@ export default function EmployeeFilterModal({
               {isLoadingPeople ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={styles.loadingText}>Caricamento...</Text>
+                  <Text style={styles.loadingText}>Loading...</Text>
                 </View>
               ) : tutorEmployees.length === 0 ? (
-                <Text style={styles.emptyText}>Nessun tutor disponibile</Text>
+                <Text style={styles.emptyText}>No tutor available</Text>
               ) : (
                 tutorEmployees.map((e) => {
                   const isSelected = filters.selectedTutorId === e.id;
@@ -207,10 +207,10 @@ export default function EmployeeFilterModal({
               {isLoadingPeople ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={styles.loadingText}>Caricamento...</Text>
+                  <Text style={styles.loadingText}>Loading...</Text>
                 </View>
               ) : leaderEmployees.length === 0 ? (
-                <Text style={styles.emptyText}>Nessun leader disponibile</Text>
+                <Text style={styles.emptyText}>No leader available</Text>
               ) : (
                 leaderEmployees.map((e) => {
                   const isSelected = filters.selectedLeaderId === e.id;
@@ -245,10 +245,10 @@ export default function EmployeeFilterModal({
               {teamStatus === 'loading' && teamNames.length === 0 ? (
                 <View style={styles.loadingContainer}>
                   <ActivityIndicator size="small" color={Colors.primary} />
-                  <Text style={styles.loadingText}>Caricamento team...</Text>
+                  <Text style={styles.loadingText}>Loading team...</Text>
                 </View>
               ) : teamNames.length === 0 ? (
-                <Text style={styles.emptyText}>Nessun team disponibile</Text>
+                <Text style={styles.emptyText}>No team available</Text>
               ) : (
                 teamNames.map((teamName) => {
                   const isSelected = filters.selectedTeams.includes(teamName);
@@ -316,10 +316,10 @@ export default function EmployeeFilterModal({
           {/* Footer */}
           <View style={styles.footer}>
             <Pressable style={styles.clearButton} onPress={handleClear}>
-              <Text style={styles.clearButtonText}>Cancella filtri</Text>
+              <Text style={styles.clearButtonText}>Clear Filters</Text>
             </Pressable>
             <Pressable style={styles.applyButton} onPress={onClose}>
-              <Text style={styles.applyButtonText}>Applica</Text>
+              <Text style={styles.applyButtonText}>Apply</Text>
             </Pressable>
           </View>
         </Pressable>

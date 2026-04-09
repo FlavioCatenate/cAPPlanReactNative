@@ -74,15 +74,15 @@ export default function EditProjectScreen({ route, navigation }: any) {
 
   const handleSubmit = async () => {
     if (!projectId) {
-      Alert.alert('Errore', 'Progetto non trovato.');
+      Alert.alert('Error', 'Project not found.');
       return;
     }
     if (!name.trim()) {
-      Alert.alert('Errore', 'Il nome del progetto è obbligatorio.');
+      Alert.alert('Error', 'Project name is required.');
       return;
     }
     if (!fromDate || !toDate) {
-      Alert.alert('Errore', 'Inserisci le date di inizio e fine.');
+      Alert.alert('Error', 'Please enter the start and end dates.');
       return;
     }
 
@@ -111,15 +111,15 @@ export default function EditProjectScreen({ route, navigation }: any) {
       const msg =
         typeof result.payload === 'string' && result.payload.trim()
           ? result.payload
-          : 'Aggiornamento fallito. Riprova.';
-      Alert.alert('Errore', msg);
+          : 'Update failed. Please try again.';
+      Alert.alert('Error', msg);
     }
   };
 
   if (!project) {
     return (
       <View style={formStyles.centered}>
-        <Text style={{ color: Colors.mainTextColor }}>Progetto non trovato.</Text>
+        <Text style={{ color: Colors.mainTextColor }}>Project not found.</Text>
       </View>
     );
   }
@@ -134,7 +134,7 @@ export default function EditProjectScreen({ route, navigation }: any) {
         contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={formStyles.label}>Nome *</Text>
+        <Text style={formStyles.label}>Name *</Text>
         <TextInput
           style={formStyles.input}
           value={name}
@@ -142,7 +142,7 @@ export default function EditProjectScreen({ route, navigation }: any) {
           autoCapitalize="words"
         />
 
-        <Text style={formStyles.label}>Descrizione</Text>
+        <Text style={formStyles.label}>Description</Text>
         <TextInput
           style={[formStyles.input, formStyles.textArea]}
           value={description}
@@ -164,11 +164,11 @@ export default function EditProjectScreen({ route, navigation }: any) {
           </Picker>
         </View>
 
-        <Text style={formStyles.label}>Data inizio *</Text>
-        <DatePickerInput label="Data inizio" value={fromDate} onChange={setFromDate} />
+        <Text style={formStyles.label}>Start Date *</Text>
+        <DatePickerInput label="Start Date" value={fromDate} onChange={setFromDate} />
 
-        <Text style={formStyles.label}>Data fine *</Text>
-        <DatePickerInput label="Data fine" value={toDate} onChange={setToDate} />
+        <Text style={formStyles.label}>End Date *</Text>
+        <DatePickerInput label="End Date" value={toDate} onChange={setToDate} />
 
         <Text style={formStyles.label}>Is Active</Text>
         <Pressable
@@ -187,7 +187,7 @@ export default function EditProjectScreen({ route, navigation }: any) {
           value={fixedPrice}
           onChangeText={setFixedPrice}
           keyboardType="numeric"
-          placeholder="es. 50000"
+          placeholder="e.g. 50000"
         />
 
         <Text style={formStyles.label}>Project ID KPI</Text>
@@ -195,7 +195,7 @@ export default function EditProjectScreen({ route, navigation }: any) {
           style={formStyles.input}
           value={projectIdKpi}
           onChangeText={setProjectIdKpi}
-          placeholder="es. KPI-001"
+          placeholder="e.g. KPI-001"
           autoCapitalize="characters"
         />
 
@@ -206,11 +206,11 @@ export default function EditProjectScreen({ route, navigation }: any) {
             disabled={submitting}
           >
             <Text style={formStyles.submitText}>
-              {submitting ? 'Salvataggio...' : 'Salva modifiche'}
+              {submitting ? 'Saving...' : 'Save Changes'}
             </Text>
           </Pressable>
           <Pressable onPress={navigateBack}>
-            <Text style={formStyles.cancelText}>Annulla</Text>
+            <Text style={formStyles.cancelText}>Cancel</Text>
           </Pressable>
         </View>
       </ScrollView>

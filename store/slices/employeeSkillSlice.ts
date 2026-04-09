@@ -33,7 +33,7 @@ export const fetchEmployeeSkills = createAsyncThunk<
     return await getAllEmployeeSkills();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore caricamento skills'
+      err instanceof Error ? err.message : 'Error loading employee skills'
     );
   }
 });
@@ -55,7 +55,7 @@ const employeeSkillSlice = createSlice({
       })
       .addCase(fetchEmployeeSkills.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       });
   },
 });

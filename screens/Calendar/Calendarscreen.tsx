@@ -241,7 +241,7 @@ export default function CalendarScreen({ navigation }: any) {
       {/* ── Employee rows ── */}
       {employees.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>Nessun employee trovato</Text>
+          <Text style={styles.emptyText}>No employees found</Text>
         </View>
       ) : (
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.listContent}>
@@ -257,10 +257,10 @@ export default function CalendarScreen({ navigation }: any) {
 
           {/* ── Legend ── */}
           <View style={styles.legend}>
-            <LegendItem color={Colors.successColor}  label="Attivo" />
-            <LegendItem color={Colors.warningColor}  label="In scadenza" />
-            <LegendItem color={Colors.errorColor}    label="Completato" />
-            <LegendItem                              label="Libero" />
+            <LegendItem color={Colors.successColor}  label="Active" />
+            <LegendItem color={Colors.warningColor}  label="Expiring" />
+            <LegendItem color={Colors.errorColor}    label="Completed" />
+            <LegendItem                              label="Free" />
           </View>
         </ScrollView>
       )}

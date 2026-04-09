@@ -45,7 +45,7 @@ export default function EmployeeDetailScreen({ route, navigation }: any) {
   if (!employee) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.notFoundText}>Employee non trovato.</Text>
+        <Text style={styles.notFoundText}>Employee not found</Text>
       </View>
     );
   }

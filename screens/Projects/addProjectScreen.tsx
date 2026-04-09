@@ -48,11 +48,11 @@ export default function AddProjectScreen({ navigation }: any) {
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      Alert.alert('Errore', 'Il nome del progetto è obbligatorio.');
+      Alert.alert('Error', 'Project name is required.');
       return;
     }
     if (!fromDate || !toDate) {
-      Alert.alert('Errore', 'Inserisci le date di inizio e fine.');
+      Alert.alert('Error', 'Please enter the start and end dates.');
       return;
     }
 
@@ -74,7 +74,7 @@ export default function AddProjectScreen({ navigation }: any) {
     if (createProjectThunk.fulfilled.match(result)) {
       navigateBack();
     } else {
-      Alert.alert('Errore', 'Creazione fallita. Riprova.');
+      Alert.alert('Error', 'Creation failed. Please try again.');
     }
   };
 
@@ -88,21 +88,21 @@ export default function AddProjectScreen({ navigation }: any) {
         contentContainerStyle={formStyles.content}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={formStyles.label}>Nome *</Text>
+        <Text style={formStyles.label}>Name *</Text>
         <TextInput
           style={formStyles.input}
           value={name}
           onChangeText={setName}
-          placeholder="es. Progetto Alpha"
+          placeholder="e.g. Project Alpha"
           autoCapitalize="words"
         />
 
-        <Text style={formStyles.label}>Descrizione</Text>
+        <Text style={formStyles.label}>Description</Text>
         <TextInput
           style={[formStyles.input, formStyles.textArea]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Descrizione opzionale..."
+          placeholder="Optional description..."
           multiline
           numberOfLines={4}
           textAlignVertical="top"
@@ -120,11 +120,11 @@ export default function AddProjectScreen({ navigation }: any) {
           </Picker>
         </View>
 
-        <Text style={formStyles.label}>Data inizio *</Text>
-        <DatePickerInput label="Data inizio" value={fromDate} onChange={setFromDate} />
+        <Text style={formStyles.label}>Start Date *</Text>
+        <DatePickerInput label="Start Date" value={fromDate} onChange={setFromDate} />
 
-        <Text style={formStyles.label}>Data fine *</Text>
-        <DatePickerInput label="Data fine" value={toDate} onChange={setToDate} />
+        <Text style={formStyles.label}>End Date *</Text>
+        <DatePickerInput label="End Date" value={toDate} onChange={setToDate} />
 
         <Text style={formStyles.label}>Is Active</Text>
         <Pressable
@@ -143,7 +143,7 @@ export default function AddProjectScreen({ navigation }: any) {
           value={fixedPrice}
           onChangeText={setFixedPrice}
           keyboardType="numeric"
-          placeholder="es. 50000"
+          placeholder="e.g. 50000"
         />
 
         <Text style={formStyles.label}>Project ID KPI</Text>
@@ -151,7 +151,7 @@ export default function AddProjectScreen({ navigation }: any) {
           style={formStyles.input}
           value={projectIdKpi}
           onChangeText={setProjectIdKpi}
-          placeholder="es. KPI-001"
+          placeholder="e.g. KPI-001"
           autoCapitalize="characters"
         />
 
@@ -162,11 +162,11 @@ export default function AddProjectScreen({ navigation }: any) {
             disabled={submitting}
           >
             <Text style={formStyles.submitText}>
-              {submitting ? 'Salvataggio...' : 'Crea Progetto'}
+              {submitting ? 'Saving...' : 'Create Project'}
             </Text>
           </Pressable>
           <Pressable onPress={navigateBack}>
-            <Text style={formStyles.cancelText}>Annulla</Text>
+            <Text style={formStyles.cancelText}>Cancel</Text>
           </Pressable>
         </View>
       </ScrollView>

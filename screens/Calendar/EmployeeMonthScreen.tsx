@@ -191,10 +191,10 @@ export default function EmployeeMonthScreen({ route, navigation }: any) {
 
         {/* ── Legend ── */}
         <View style={styles.legend}>
-          <LegendItem color={Colors.successColor} label="Attivo" />
-          <LegendItem color={Colors.warningColor} label="In scadenza" />
-          <LegendItem color={Colors.errorColor}   label="Completato" />
-          <LegendItem                             label="Libero" />
+          <LegendItem color={Colors.successColor} label="Active" />
+          <LegendItem color={Colors.warningColor} label="Expiring" />
+          <LegendItem color={Colors.errorColor}   label="Completed" />
+          <LegendItem                             label="Free" />
         </View>
 
       </ScrollView>
@@ -203,7 +203,7 @@ export default function EmployeeMonthScreen({ route, navigation }: any) {
       <Pressable
         onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('Calendar')}
       >
-        <Text style={styles.backText}>← Indietro</Text>
+        <Text style={styles.backText}>← Back</Text>
       </Pressable>
 
     </View>

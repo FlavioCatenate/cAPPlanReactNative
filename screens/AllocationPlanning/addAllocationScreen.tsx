@@ -70,16 +70,16 @@ export default function AddAllocationScreen({ navigation }: any) {
 
   const handleSubmit = async () => {
     if (!selectedEmployeeId || !selectedProjectId) {
-      Alert.alert("Errore", "Seleziona un employee e un progetto.");
+      Alert.alert("Error", "Please select an employee and a project.");
       return;
     }
     const pct = parseInt(percentage, 10);
     if (isNaN(pct) || pct < 1 || pct > 100) {
-      Alert.alert("Errore", "La percentuale deve essere tra 1 e 100.");
+      Alert.alert("Error", "The percentage must be between 1 and 100.");
       return;
     }
     if (!fromDate || !toDate) {
-      Alert.alert("Errore", "Inserisci le date di inizio e fine.");
+      Alert.alert("Error", "Please enter the start and end dates.");
       return;
     }
 
@@ -102,7 +102,7 @@ export default function AddAllocationScreen({ navigation }: any) {
       await dispatch(fetchAllocations());
       navigateBackToPlanning();
     } else {
-      Alert.alert("Errore", "Creazione fallita. Riprova.");
+      Alert.alert("Error", "Creation failed. Please try again.");
     }
   };
 
@@ -126,7 +126,7 @@ export default function AddAllocationScreen({ navigation }: any) {
           selectedValue={selectedEmployeeId}
           onValueChange={(val) => setSelectedEmployeeId(val)}
         >
-          <Picker.Item label="Seleziona un employee..." value={null} />
+          <Picker.Item label="Select an employee..." value={null} />
           {employees.map((e) => (
             <Picker.Item
               key={e.id}
@@ -137,26 +137,26 @@ export default function AddAllocationScreen({ navigation }: any) {
         </Picker>
       </View>
 
-      <Text style={styles.label}>Progetto</Text>
+      <Text style={styles.label}>Project</Text>
       <View style={styles.pickerWrapper}>
         <Picker
           selectedValue={selectedProjectId}
           onValueChange={(val) => setSelectedProjectId(val)}
         >
-          <Picker.Item label="Seleziona un progetto..." value={null} />
+          <Picker.Item label="Select a project..." value={null} />
           {projects.map((p) => (
             <Picker.Item key={p.id} label={p.name} value={p.id} />
           ))}
         </Picker>
       </View>
 
-      <Text style={styles.label}>Percentuale (%)</Text>
+      <Text style={styles.label}>Percentage (%)</Text>
       <TextInput
         style={styles.input}
         value={percentage}
         onChangeText={setPercentage}
         keyboardType="numeric"
-        placeholder="es. 80"
+        placeholder="e.g. 80"
         maxLength={3}
       />
 
@@ -166,7 +166,7 @@ export default function AddAllocationScreen({ navigation }: any) {
         value={salesRate}
         onChangeText={setSalesRate}
         keyboardType="numeric"
-        placeholder="es. 50"
+        placeholder="e.g. 50"
       />
       <Text style={styles.label}>Fixed Price</Text>
       <Pressable
@@ -179,16 +179,16 @@ export default function AddAllocationScreen({ navigation }: any) {
         <Text style={styles.fixedPriceText}>{isFixedPrice ? "Yes" : "No"}</Text>
       </Pressable>
 
-      <Text style={styles.label}>Data inizio (YYYY-MM-DD)</Text>
+      <Text style={styles.label}>Start Date (YYYY-MM-DD)</Text>
       <DatePickerInput
-        label="Data inizio"
+        label="Start Date"
         value={fromDate}
         onChange={setFromDate}
       />
 
-      <Text style={styles.label}>Data fine (YYYY-MM-DD)</Text>
+      <Text style={styles.label}>End Date (YYYY-MM-DD)</Text>
       <DatePickerInput
-        label="Data fine"
+        label="End Date"
         value={toDate}
         onChange={setToDate}
       />
@@ -199,7 +199,7 @@ export default function AddAllocationScreen({ navigation }: any) {
           disabled={submitting}
         >
           <Text style={styles.submitText}>
-            {submitting ? "Salvataggio..." : "Crea Allocation"}
+            {submitting ? "Saving..." : "Create Allocation"}
           </Text>
         </Pressable>
         <Pressable onPress={navigateBackToPlanning}>

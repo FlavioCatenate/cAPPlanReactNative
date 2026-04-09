@@ -41,7 +41,7 @@ export default function ProjectDetailScreen({ route, navigation }: any) {
   if (!project) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.notFoundText}>Progetto non trovato.</Text>
+        <Text style={styles.notFoundText}>Project not found.</Text>
       </View>
     );
   }

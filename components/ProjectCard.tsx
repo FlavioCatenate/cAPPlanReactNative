@@ -58,7 +58,7 @@ function ProjectCard({
             </View>
           ) : null}
           <Text style={styles.description} numberOfLines={3}>
-            {description || "Nessuna descrizione"}
+            {description || "No description provided."}
           </Text>
         </View>
         <View style={styles.lowerRight}>

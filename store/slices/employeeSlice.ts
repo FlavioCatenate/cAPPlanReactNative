@@ -73,7 +73,7 @@ export const fetchEmployees = createAsyncThunk<
     return await getEmployees();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore sconosciuto'
+      err instanceof Error ? err.message : 'Unknown error'
     );
   }
 });
@@ -86,7 +86,7 @@ export const createEmployeeThunk = createAsyncThunk<
   try {
     return await createEmployee(data);
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -106,7 +106,7 @@ export const updateEmployeeThunk = createAsyncThunk<
         err.message;
       return rejectWithValue(String(msg));
     }
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -119,7 +119,7 @@ export const deleteEmployeeThunk = createAsyncThunk<
     await deleteEmployee(id);
     return id;
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -142,7 +142,7 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       })
       .addCase(createEmployeeThunk.fulfilled, (state, action) => {
         state.items.push(action.payload);

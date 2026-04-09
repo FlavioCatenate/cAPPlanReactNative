@@ -72,7 +72,7 @@ export const fetchAllocations = createAsyncThunk<Allocation[], void, { rejectVal
     try {
       return await getAllocations();
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Errore sconosciuto');
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
   }
 );
@@ -87,7 +87,7 @@ export const createAllocationThunk = createAsyncThunk<
     try {
       return await createAllocation(data);
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
   }
 );
@@ -114,7 +114,7 @@ export const updateAllocationThunk = createAsyncThunk<
       }
 
       console.error('Error updating allocation:', err instanceof Error ? err.message : err);
-      return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
   }
 );
@@ -126,7 +126,7 @@ export const deleteAllocationThunk = createAsyncThunk<number, number, { rejectVa
       await deleteAllocation(id);
       return id;
     } catch (err) {
-      return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+      return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
     }
   }
 );
@@ -147,7 +147,7 @@ const allocationSlice = createSlice({
       })
       .addCase(fetchAllocations.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       })
       .addCase(createAllocationThunk.fulfilled, (state, action) => {
         if (hasHydratedRelations(action.payload)) {

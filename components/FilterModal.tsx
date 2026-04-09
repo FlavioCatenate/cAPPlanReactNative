@@ -38,9 +38,9 @@ interface FilterModalProps {
 
 // Status colors per i badge
 const STATUS_OPTIONS = [
-  { label: 'Attivo', color: Colors.successColor },
-  { label: 'In scadenza', color: Colors.warningColor },
-  { label: 'Completato', color: Colors.errorColor },
+  { label: 'Active', color: Colors.successColor },
+  { label: 'Expiring', color: Colors.warningColor },
+  { label: 'Completed', color: Colors.errorColor },
 ];
 
 export default function FilterModal({ visible, onClose }: FilterModalProps) {
@@ -110,7 +110,7 @@ export default function FilterModal({ visible, onClose }: FilterModalProps) {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Filtri</Text>
+            <Text style={styles.headerTitle}>Filters</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <Text style={styles.closeButton}>✕</Text>
             </Pressable>
@@ -133,16 +133,16 @@ export default function FilterModal({ visible, onClose }: FilterModalProps) {
                     color={Colors.primary}
                   />
                   <Text style={styles.loadingText}>
-                    Caricamento team...
+                    Loading team...
                   </Text>
                 </View>
               ) : teamStatus === 'failed' ? (
                 <Text style={styles.errorText}>
-                  Errore caricamento team
+                  Error loading team
                 </Text>
               ) : teamNames.length === 0 ? (
                 <Text style={styles.emptyText}>
-                  Nessun team disponibile
+                  No teams available
                 </Text>
               ) : (
                 teamNames.map((teamName) => {
@@ -174,7 +174,7 @@ export default function FilterModal({ visible, onClose }: FilterModalProps) {
 
             {/* STATUS SECTION */}
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>STATO ALLOCAZIONE</Text>
+              <Text style={styles.sectionTitle}>ALLOCATION STATUS</Text>
 
               {STATUS_OPTIONS.map((status) => {
                 const isSelected = selectedStatuses.includes(status.color);
@@ -220,16 +220,16 @@ export default function FilterModal({ visible, onClose }: FilterModalProps) {
                     color={Colors.primary}
                   />
                   <Text style={styles.loadingText}>
-                    Caricamento employee...
+                    Loading employee...
                   </Text>
                 </View>
               ) : employeeStatus === 'failed' ? (
                 <Text style={styles.errorText}>
-                  Errore caricamento employee
+                  Error loading employee
                 </Text>
               ) : employees.length === 0 ? (
                 <Text style={styles.emptyText}>
-                  Nessun employee disponibile
+                  No employees available
                 </Text>
               ) : (
                 employees.map((employee) => {
@@ -272,14 +272,14 @@ export default function FilterModal({ visible, onClose }: FilterModalProps) {
               onPress={handleClearFilters}
             >
               <Text style={styles.clearButtonText}>
-                Cancella filtri
+                Clear Filters
               </Text>
             </Pressable>
             <Pressable
               style={styles.applyButton}
               onPress={onClose}
             >
-              <Text style={styles.applyButtonText}>Applica</Text>
+              <Text style={styles.applyButtonText}>Apply</Text>
             </Pressable>
           </View>
         </Pressable>

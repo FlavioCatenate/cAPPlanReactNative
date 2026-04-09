@@ -140,11 +140,11 @@ export function getFirstDayOfWeekIndex(year: number, month: number): number {
   return jsDay === 0 ? 6 : jsDay - 1;
 }
 
-/** Italian month names. */
+/** English month names. */
 export function getMonthName(month: number): string {
   return [
-    'Gennaio', 'Febbraio', 'Marzo',     'Aprile',
-    'Maggio',  'Giugno',   'Luglio',    'Agosto',
-    'Settembre','Ottobre', 'Novembre',  'Dicembre',
+    'January', 'February', 'March',     'April',
+    'May',     'June',     'July',      'August',
+    'September','October', 'November',  'December',
   ][month];
 }

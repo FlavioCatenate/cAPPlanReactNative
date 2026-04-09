@@ -25,9 +25,9 @@ export function countProjectFilters(filters: ProjectFilters): number {
 }
 
 const STATUS_OPTIONS: { value: ProjectStatusFilter; label: string; color: string }[] = [
-  { value: 'active',    label: 'Attivo',      color: Colors.successColor },
-  { value: 'expiring',  label: 'In scadenza', color: Colors.warningColor },
-  { value: 'completed', label: 'Inattivo',    color: Colors.errorColor },
+  { value: 'active',    label: 'Active',      color: Colors.successColor },
+  { value: 'expiring',  label: 'Expiring', color: Colors.warningColor },
+  { value: 'completed', label: 'Completed',    color: Colors.errorColor },
 ];
 
 interface ProjectFilterModalProps {
@@ -71,7 +71,7 @@ export default function ProjectFilterModal({
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>Filtri</Text>
+            <Text style={styles.headerTitle}>Filters</Text>
             <Pressable onPress={onClose} hitSlop={8}>
               <Text style={styles.closeButton}>✕</Text>
             </Pressable>
@@ -83,7 +83,7 @@ export default function ProjectFilterModal({
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>STATO PROGETTO</Text>
+              <Text style={styles.sectionTitle}>PROJECT STATUS</Text>
               {STATUS_OPTIONS.map(({ value, label, color }) => {
                 const isSelected = filters.selectedStatuses.includes(value);
                 return (
@@ -113,10 +113,10 @@ export default function ProjectFilterModal({
           {/* Footer */}
           <View style={styles.footer}>
             <Pressable style={styles.clearButton} onPress={handleClear}>
-              <Text style={styles.clearButtonText}>Cancella filtri</Text>
+              <Text style={styles.clearButtonText}>Clear Filters</Text>
             </Pressable>
             <Pressable style={styles.applyButton} onPress={onClose}>
-              <Text style={styles.applyButtonText}>Applica</Text>
+              <Text style={styles.applyButtonText}>Apply</Text>
             </Pressable>
           </View>
         </Pressable>

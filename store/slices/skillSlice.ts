@@ -43,7 +43,7 @@ export const fetchSkills = createAsyncThunk<
     return await getSkills();
   } catch (err) {
     return rejectWithValue(
-      err instanceof Error ? err.message : 'Errore sconosciuto'
+      err instanceof Error ? err.message : 'Unknown error'
     );
   }
 });
@@ -56,7 +56,7 @@ export const createSkillThunk = createAsyncThunk<
   try {
     return await createSkill(data);
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -76,7 +76,7 @@ export const updateSkillThunk = createAsyncThunk<
         err.message;
       return rejectWithValue(String(msg));
     }
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -89,7 +89,7 @@ export const deleteSkillThunk = createAsyncThunk<
     await deleteSkill(id);
     return id;
   } catch (err) {
-    return rejectWithValue(err instanceof Error ? err.message : 'Errore');
+    return rejectWithValue(err instanceof Error ? err.message : 'Unknown error');
   }
 });
 
@@ -112,7 +112,7 @@ const skillSlice = createSlice({
       })
       .addCase(fetchSkills.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload ?? 'Errore sconosciuto';
+        state.error = action.payload ?? 'Unknown error';
       })
       .addCase(createSkillThunk.fulfilled, (state, action) => {
         state.items.push(action.payload);
